@@ -1,7 +1,10 @@
 #pragma once
 #include <string>
 
-class AST{};
+class AST{
+public:
+    virtual ~AST() = default;
+};
 
 class Num : public AST{};
 

@@ -21,6 +21,8 @@ int main(){
     //tokenizing
     Lexer lexer = Lexer(text);
     Parser parser = Parser(lexer);
-    parser.expr();   
- 
+    BinaryOp* ex = dynamic_cast<BinaryOp*>(parser.expr());
+    Num* left = ex->left;
+    Real* leftInt = dynamic_cast<Real*>(left);
+    cout << leftInt->value << endl;
 }

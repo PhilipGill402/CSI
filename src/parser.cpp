@@ -18,39 +18,40 @@ Token Parser::get_next_token(){
 }
 
 AST* Parser::term(){
-    AST left = factor();
+    AST* node = factor();
 
     while (current_token.type == TokenType::MUL || current_token.type == TokenType::DIV || current_token.type == TokenType::INT_DIV){ 
+        Op* op = new Op(current_token.value); 
         if (current_token.type == TokenType::MUL){
-            Op op = Op("*");
             eat(TokenType::MUL);
-            return BinaryOp(&left, &op, &factor());
         }else if (current_token.type == TokenType::DIV){
-            Op op = Op("/");
             eat(TokenType::DIV);
         }else if (current_token.type == TokenType::INT_DIV){
-            Op op = Op("INT_DIV");
             eat(TokenType::INT_DIV);
         }
-
-        AST right = factor();
-        AST node = BinaryOp(&left, &op, &right);
+        node = new BinaryOp(dynamic_cast<Num*>(node), op, dynamic_cast<Num*>(factor()));
     }
-
     
+    return node;
 }
 
 AST* Parser::factor(){
     if (current_token.type == TokenType::INTEGER_CONST){
-        return Integer(stoi(current_token.value));
-    }else if (current_token.type == TokenType::REAL_CONST){
-        return Real(stof(current_token.value));
-    }else if (current_token.type == LPAREN){
+        int value = stoi(current_token.value);
+        eat(TokenType::INTEGER_CONST);
+        return new Integer(value);
+    } else if (current_token.type == TokenType::REAL_CONST){
+        float value = stof(current_token.value);
+        eat(TokenType::REAL_CONST); 
+        return new Real(value);
+    } else if (current_token.type == LPAREN){
         eat(LPAREN);
-        AST node = expr();
+        AST* node = expr();
         eat(RPAREN);
 
         return node;
+    } else {
+        throw runtime_error("Unexpected token in factor()");
     }
 }
 
