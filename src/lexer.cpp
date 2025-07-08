@@ -63,6 +63,28 @@ string get_TokenType(TokenType type){
     }
 }
 
+TokenType StoR(string str){
+    if (str == "PROGRAM"){
+        return TokenType::PROGRAM;
+    } else if (str == "INTEGER"){
+        return TokenType::INTEGER;
+    } else if (str == "REAL"){
+        return TokenType::REAL;
+    } else if (str == "DIV"){
+        return TokenType::DIV;
+    } else if (str == "VAR"){
+        return TokenType::VAR;
+    } else if (str == "PROCEDURE"){
+        return TokenType::PROCEDURE;
+    } else if (str == "BEGIN"){
+        return TokenType::BEGIN;
+    } else if (str == "END"){
+        return TokenType::END;
+    } else {
+        throw invalid_argument("Invalid string passed to 'StoR'");
+    }
+}
+
 Token::Token(): type(UNKNOWN), value("UNKNOWN"), lineno(0), column(0){};
 Token::Token(TokenType t, string val, int l, int c): type(t), value(val), lineno(l), column(c){};
 
@@ -72,7 +94,34 @@ string Token::toString(){
 }
 
 Lexer::Lexer(string txt): text(txt), pos(0), lineno(1), column(1), current_char(text.empty() ? '\0' : txt[0]){};
-    
+
+string toUpper(string str){
+    string newStr; 
+    for (char c : str){
+        newStr += toupper(c);
+    }
+
+    return newStr;
+}
+
+Token Lexer::id(){
+    string value;
+    int currLineno = lineno;
+    int currColumn = column;
+    while (isalpha(current_char)){
+        value += current_char;
+        advance();
+    }
+    value = toUpper(value);
+
+    if (find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), value) != RESERVED_KEYWORDS.end()){
+        TokenType type = StoR(value);
+        return Token(type, value, currLineno, currColumn);
+    } else {
+        return Token(TokenType::ID, value, currLineno, currColumn);
+    }
+}
+
 void Lexer::advance(){
     pos++;
     if (pos < text.length()){
@@ -104,6 +153,10 @@ Token Lexer::get_next_token(){
                 advance();
             }
             continue;
+        }
+
+        if (isalpha(current_char)){
+            return id();
         }
 
         if (isdigit(current_char)){

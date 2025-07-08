@@ -6,24 +6,27 @@ public:
     virtual ~AST() = default;
 };
 
-class Num : public AST{};
+class Num : public AST{
+public:
+    double value;
+    Num(int);
+    Num(double);
+};
 
 class Integer : public Num{
 public:
-    int value;
-    Integer(int v);
+    Integer(int);
 };
 
 class Real : public Num{
 public:
-    float value;
-    Real(float v);
+    Real(double);
 };
 
 class Op : public AST{
 public:
     std::string value;
-    Op(std::string v);
+    Op(std::string);
 };
 
 class BinaryOp : public AST{
@@ -32,5 +35,5 @@ public:
     Op* op;
     Num* right;
 
-    BinaryOp(Num* l, Op* o, Num* r);
+    BinaryOp(Num*, Op*, Num*);
 };

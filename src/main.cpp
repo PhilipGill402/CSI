@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "parser.h"
+#include "interpreter.h"
 #include <iostream>
 #include <fstream>
 
@@ -21,8 +22,18 @@ int main(){
     //tokenizing
     Lexer lexer = Lexer(text);
     Parser parser = Parser(lexer);
-    BinaryOp* ex = dynamic_cast<BinaryOp*>(parser.expr());
-    Num* left = ex->left;
-    Real* leftInt = dynamic_cast<Real*>(left);
-    cout << leftInt->value << endl;
+    Interpreter interpreter = Interpreter(); 
+    AST* expression = parser.expr();
+    Num* result = interpreter.visitBinaryOp(expression);
+    cout << result->value << endl;
+    
+
+
+    /*
+    Token token = parser.current_token;
+    while (token.type != TokenType::END_OF_FILE){
+        cout << token.toString() << '\n';
+        token = parser.get_next_token();
+    }
+    */
 }

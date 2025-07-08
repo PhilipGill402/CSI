@@ -8,9 +8,9 @@ public:
     Lexer& lexer;
     Token current_token;
     
-    Parser(Lexer& l);
+    Parser(Lexer&);
     
-    void eat(TokenType type);
+    void eat(TokenType);
     Token get_next_token();
     AST* term();
     AST* expr();

@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <cctype>
 
 enum TokenType{
     ADD,
@@ -28,8 +31,8 @@ enum TokenType{
     UNKNOWN
 };
 
-std::string TtoS(TokenType type);
-std::string get_TokenType(TokenType type);
+std::string TtoS(TokenType);
+std::string get_TokenType(TokenType);
 
 class Token{
 public:
@@ -38,12 +41,13 @@ public:
     int lineno;
     int column;
     Token();
-    Token(TokenType t, std::string val, int l, int c);
+    Token(TokenType, std::string, int, int);
     std::string toString();
 };
 
 class Lexer{
 public:
+    const std::vector<std::string> RESERVED_KEYWORDS = {"PROGRAM", "INTEGER", "REAL", "DIV", "VAR", "PROCEDURE", "BEGIN", "END"};
     std::string text;
     int pos;
     int lineno;
@@ -52,4 +56,5 @@ public:
     Lexer(std::string txt);
     void advance();
     Token get_next_token();
+    Token id();
 };

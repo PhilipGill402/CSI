@@ -41,7 +41,7 @@ AST* Parser::factor(){
         eat(TokenType::INTEGER_CONST);
         return new Integer(value);
     } else if (current_token.type == TokenType::REAL_CONST){
-        float value = stof(current_token.value);
+        double value = stod(current_token.value);
         eat(TokenType::REAL_CONST); 
         return new Real(value);
     } else if (current_token.type == LPAREN){
