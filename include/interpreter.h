@@ -6,6 +6,9 @@
 class Interpreter{
 public:
     AST* root;
-    Num* visitBinaryOp(AST*);
+    AST* visit(AST*);
+    int visitInteger(Integer*);
+    double visitReal(Real*);
+    Num* visitBinaryOp(BinaryOp*);
 
 };

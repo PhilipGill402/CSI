@@ -1,4 +1,5 @@
 #include <parser.h>
+#include <interpreter.h>
 
 using namespace std;
 
@@ -29,29 +30,32 @@ AST* Parser::term(){
         }else if (current_token.type == TokenType::INT_DIV){
             eat(TokenType::INT_DIV);
         }
-        node = new BinaryOp(dynamic_cast<Num*>(node), op, dynamic_cast<Num*>(factor()));
+
+        node = new BinaryOp(node, op, factor());
     }
     
     return node;
 }
 
 AST* Parser::factor(){
+    cout << current_token.toString() << endl;
     if (current_token.type == TokenType::INTEGER_CONST){
         int value = stoi(current_token.value);
         eat(TokenType::INTEGER_CONST);
-        return new Integer(value);
+        Integer* node = new Integer(value);
+        return node;
     } else if (current_token.type == TokenType::REAL_CONST){
         double value = stod(current_token.value);
         eat(TokenType::REAL_CONST); 
-        return new Real(value);
+        Real* node = new Real(value);
+        return node;
     } else if (current_token.type == LPAREN){
         eat(LPAREN);
         AST* node = expr();
         eat(RPAREN);
-
         return node;
     } else {
-        throw runtime_error("Unexpected token in factor()");
+        throw runtime_error("Unexpected token in factor(): " + current_token.value);
     }
 }
 
@@ -65,8 +69,9 @@ AST* Parser::expr(){
         }else{
             eat(TokenType::SUB);
         }
-        node = new BinaryOp(dynamic_cast<Num*>(node), op, dynamic_cast<Num*>(term()));
+        
+        node = new BinaryOp(node, op, term());
     }
-
+    
     return node; 
 }

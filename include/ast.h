@@ -31,9 +31,9 @@ public:
 
 class BinaryOp : public AST{
 public:
-    Num* left;
+    AST* left;
     Op* op;
-    Num* right;
+    AST* right;
 
-    BinaryOp(Num*, Op*, Num*);
+    BinaryOp(AST*, Op*, AST*);
 };
