@@ -18,6 +18,10 @@ public:
     AST* expr();
     AST* factor();
     AST* program();
+    AST* block();
+    std::vector<VarDecl*> declarations();
+    std::vector<VarDecl*> variable_declarations();
+    Type* type_spec();
     AST* compound_statement();
     std::vector<AST*> statement_list();
     AST* statement();

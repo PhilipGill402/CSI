@@ -10,7 +10,7 @@ void Parser::eat(TokenType type){
         current_token = lexer.get_next_token();
     }
     else{
-        cout << TtoS(current_token.type) << '\n';
+        cout << current_token.toString() << '\n';
         cout << TtoS(type) << '\n';
         throw invalid_argument("Token type and the current token do not match");
     }
@@ -65,8 +65,9 @@ AST* Parser::factor(){
         eat(SUB);
         AST* node = new UnaryOp(op, factor());
         return node;
-    } 
-    else {
+    } else if (current_token.type == TokenType::ID){
+        return variable();
+    } else {
         throw runtime_error("Unexpected token in factor(): " + current_token.value);
     }
 }
@@ -89,9 +90,73 @@ AST* Parser::expr(){
 }
 
 AST* Parser::program(){
-    AST* node = compound_statement();
+    eat(PROGRAM);
+    string program_name = current_token.value;
+    eat(ID); 
+    eat(SEMI);
+    Block* block_node = dynamic_cast<Block*>(block()); 
     eat(DOT);
+    
+    Program* node = new Program(program_name, block_node);
     return node;
+}
+
+AST* Parser::block(){
+    vector<VarDecl*> decls = declarations();
+    Compound* compound = dynamic_cast<Compound*>(compound_statement());
+
+    Block* node = new Block(decls, compound);
+
+    return node;
+}
+
+vector<VarDecl*> Parser::declarations(){
+    vector<VarDecl*> decls = {};
+    if (current_token.type == TokenType::VAR){
+        eat(VAR);
+        do
+        {
+            vector<VarDecl*> nodes = variable_declarations(); 
+            decls.insert(decls.end(), nodes.begin(), nodes.end());
+            eat(SEMI);
+        } while (current_token.type == TokenType::ID);
+    } 
+    
+    return decls;
+}
+
+vector<VarDecl*> Parser::variable_declarations(){
+    vector<Var*> var_nodes = {new Var(current_token)};
+    eat(ID);
+    while (current_token.type == TokenType::COMMA){
+        eat(COMMA);
+        var_nodes.push_back(new Var(current_token));
+        eat(ID);
+    }
+    eat(COLON);
+    Type* type = type_spec();
+
+    vector<VarDecl*> var_decl_nodes = {};
+    for (Var* node : var_nodes){
+        var_decl_nodes.push_back(new VarDecl(node, type));
+    }
+
+    return var_decl_nodes;
+}
+
+Type* Parser::type_spec(){
+    TokenType type;
+    if (current_token.type == TokenType::INTEGER){
+        type = TokenType::INTEGER; 
+        eat(INTEGER);
+    } else if (current_token.type == TokenType::REAL){
+        type = TokenType::REAL;
+        eat(REAL);
+    } else {
+        throw runtime_error("Unrecognized type in type_spec()");
+    }
+
+    return new Type(type);
 }
 
 AST* Parser::compound_statement(){

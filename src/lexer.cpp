@@ -108,7 +108,7 @@ Token Lexer::id(){
     string value;
     int currLineno = lineno;
     int currColumn = column;
-    while (isalpha(current_char)){
+    while (isalnum(current_char)){
         value += current_char;
         advance();
     }

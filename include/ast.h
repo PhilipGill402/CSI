@@ -4,6 +4,13 @@
 #include <lexer.h>
 #include <unordered_map>
 
+class Block;
+class Compound;
+class VarDecl;
+class Type;
+class Var;
+class Token;
+
 class AST{
 public:
     virtual ~AST() = default;
@@ -49,7 +56,35 @@ public:
     UnaryOp(Op*, AST*);
 };
 
-class Program : public AST{};
+class Program : public AST{
+public:
+    std::string program_name;
+    Block* block;
+    Program(std::string, Block*);
+};
+
+class Block : public AST{
+public:
+    std::vector<VarDecl*> declarations;
+    Compound* compound_statement;
+
+    Block(std::vector<VarDecl*>&, Compound*);
+};
+
+class VarDecl : public AST{
+public:
+    Var* var;
+    Type* type;
+
+    VarDecl(Var*, Type*);
+};
+
+class Type : public AST{
+public:
+    TokenType type;
+
+    Type(TokenType);
+};
 
 class Compound : public AST{
 public:
