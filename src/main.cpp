@@ -25,7 +25,7 @@ int main(){
     AST* tree = parser.parse();
     Interpreter interpreter = Interpreter(tree); 
     interpreter.interpret();
-
+    cout << size(interpreter.global_variables) << endl;
     for (auto entry : interpreter.global_variables){
         cout << entry.first << ": " << entry.second->value << '\n';
     }

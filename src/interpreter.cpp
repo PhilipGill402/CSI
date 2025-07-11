@@ -112,7 +112,7 @@ Num* Interpreter::visitUnaryOp(UnaryOp* node){
 }
 
 AST* Interpreter::visitProgram(Program* node){
-    return new NoOp();
+    return visit(node->block);
 }
 
 AST* Interpreter::visitCompound(Compound* node){
