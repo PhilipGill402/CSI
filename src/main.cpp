@@ -22,10 +22,13 @@ int main(){
     //tokenizing
     Lexer lexer = Lexer(text);
     Parser parser = Parser(lexer);
-    Interpreter interpreter = Interpreter(); 
-    AST* expression = parser.expr();
-    Num* result = interpreter.visitBinaryOp(expression);
-    cout << result->value << endl;
+    AST* tree = parser.parse();
+    Interpreter interpreter = Interpreter(tree); 
+    interpreter.interpret();
+
+    for (auto entry : interpreter.global_variables){
+        cout << entry.first << ": " << entry.second->value << '\n';
+    }
     
 
 

@@ -141,6 +141,14 @@ void Lexer::advance(){
     }
 }
 
+char Lexer::peek(){
+    if (pos + 1 < text.length()){
+        return text[pos+1];
+    } else {
+        return '\0';
+    }
+}
+
 Token Lexer::get_next_token(){
     while (current_char != '\0'){
         if (isspace(current_char) != 0){
@@ -209,6 +217,10 @@ Token Lexer::get_next_token(){
                 advance();
                 return Token(TokenType::SEMI, ";", currLineno, currColumn); 
             case ':':
+                if (peek() == '='){
+                    advance();
+                    return Token(TokenType::ASSIGN, ":=", currLineno, currColumn);
+                } 
                 advance();
                 return Token(TokenType::COLON, ":", currLineno, currColumn); 
             case ',':

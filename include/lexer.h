@@ -55,6 +55,7 @@ public:
     char current_char;
     Lexer(std::string txt);
     void advance();
+    char peek();
     Token get_next_token();
     Token id();
 };

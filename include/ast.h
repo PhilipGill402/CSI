@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <lexer.h>
+#include <unordered_map>
 
 class AST{
 public:
@@ -37,3 +40,37 @@ public:
 
     BinaryOp(AST*, Op*, AST*);
 };
+
+class UnaryOp : public AST{
+public:
+    Op* op;    
+    AST* expr;
+
+    UnaryOp(Op*, AST*);
+};
+
+class Program : public AST{};
+
+class Compound : public AST{
+public:
+    std::vector<AST*> children = {};
+    Compound(std::vector<AST*>&);
+};
+
+class Assign : public AST{
+public:
+    AST* left;
+    Token token;
+    AST* right;
+
+    Assign(AST*, Token, AST*);
+};
+
+class Var : public AST{
+public:
+    Token token;
+
+    Var(Token);
+};
+
+class NoOp : public AST{};
