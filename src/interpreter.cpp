@@ -30,6 +30,12 @@ AST* Interpreter::visit(AST* node){
         return visitVar(var);
     } else if (auto noOp = dynamic_cast<NoOp*>(node)){
         return visitNoOp(noOp);
+    } else if (auto block = dynamic_cast<Block*>(node)){
+        return visitBlock(block);        
+    } else if (auto varDecl = dynamic_cast<VarDecl*>(node)){
+        return visitVarDecl(varDecl);
+    } else if (auto type = dynamic_cast<Type*>(node)){
+        return visitType(type);
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -69,7 +75,7 @@ Num* Interpreter::visitBinaryOp(BinaryOp* node){
         result = left->value * right->value;
     } else if (op->value == "/"){
         result = left->value / right->value;
-    } else if (op->value == "INT_DIV"){
+    } else if (op->value == "DIV"){
         int leftVal = static_cast<int>(left->value);
         int rightVal = static_cast<int>(right->value);
         result = static_cast<int>(leftVal / rightVal);
@@ -147,6 +153,27 @@ AST* Interpreter::visitVar(Var* node){
 }
 
 AST* Interpreter::visitNoOp(NoOp* node){
+    return new NoOp();
+}
+
+AST* Interpreter::visitBlock(Block* node){
+    for (VarDecl* varDecl : node->declarations){
+        visit(varDecl);
+    }
+
+    visit(node->compound_statement);
+
+    return new NoOp();
+}
+
+AST* Interpreter::visitVarDecl(VarDecl* node){
+    visit(node->var);
+    visit(node->type);
+
+    return new NoOp();
+}
+
+AST* Interpreter::visitType(Type* node){
     return new NoOp();
 }
 

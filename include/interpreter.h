@@ -20,5 +20,8 @@ public:
     AST* visitAssign(Assign*);
     AST* visitVar(Var*);
     AST* visitNoOp(NoOp*);
+    AST* visitBlock(Block*);
+    AST* visitVarDecl(VarDecl*);
+    AST* visitType(Type*);
     void interpret();
 };
