@@ -125,21 +125,36 @@ Num* Interpreter::visitUnaryOp(UnaryOp* node){
         throw runtime_error("Non Num expression passed into UnaryOp");
     }    
 
-    
     if (op->value == "+"){
-        newNode->value = +newNode->value; 
+        double original = static_cast<double>(newNode->value);
+        original = +original;
+
+        if (isReal(newNode)){
+            return new Real(original);
+        }
+        int new_original = static_cast<int>(original); 
+        return new Integer(new_original);
+    
     } else if (op->value == "-"){
-        newNode->value = -newNode->value;
+        double original = static_cast<double>(newNode->value);
+        original = -original;
+
+        if (isReal(newNode)){
+            return new Real(original);
+        }
+        int new_original = static_cast<int>(original);
+
+        return new Integer(new_original);
+
     } else if (op->value == "NOT"){
-        newNode->value = !newNode->value;
+        bool original = static_cast<bool>(newNode->value); 
+        return new Boolean(!original);
+
+    } else {
+        throw runtime_error("Received unsupported unary operation type");
     }
     
-    if (isReal(newNode)){
-        Real* result = dynamic_cast<Real*>(newNode);
-        return result;
-    }
-    Integer* result = dynamic_cast<Integer*>(newNode);
-    return result;
+    
 }
 
 AST* Interpreter::visitProgram(Program* node){

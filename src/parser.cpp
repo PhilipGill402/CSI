@@ -79,6 +79,11 @@ AST* Parser::factor(){
         eat(SUB);
         AST* node = new UnaryOp(op, factor());
         return node;
+    } else if (current_token.type == TokenType::NOT){
+        Op* op = new Op(current_token.value);
+        eat(NOT);
+        AST* node = new UnaryOp(op, factor());
+        return node;
     } else if (current_token.type == TokenType::ID){
         return variable();
     } else {
@@ -115,7 +120,28 @@ AST* Parser::and_expr(){
 }
 
 AST* Parser::comparison(){
+    AST* node = additive();
+    TokenType type = current_token.type; 
+    while (type == EQUAL || type == NOT_EQUAL || type == GREATER_THAN || type == LESS_THAN || type == GTE || type == LTE){
+        Op* op; 
+        if (type == EQUAL){
+            op = new Op("==");
+        } else if (type == NOT_EQUAL){
+            op = new Op("!=");
+        } else if (type == GREATER_THAN){
+            op = new Op(">");
+        } else if (type == LESS_THAN){
+            op = new Op("<");
+        } else if (type == GTE){
+            op = new Op(">=");
+        } else if (type == LTE){
+            op = new Op("<=");
+        }
 
+        node = new BinaryOp(node, op, additive());
+    }
+
+    return node;
 }
 
 AST* Parser::additive(){
