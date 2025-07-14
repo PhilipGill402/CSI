@@ -123,7 +123,13 @@ Num* Interpreter::visitUnaryOp(UnaryOp* node){
 }
 
 AST* Interpreter::visitProgram(Program* node){
-    return visit(node->block);
+    string program_name = node->program_name;
+    ActivationRecord program_ar = ActivationRecord(program_name, ARType::AR_PROGRAM, 1);
+    call_stack.records.push(program_ar);
+    AST* new_node = visit(node->block);
+    ActivationRecord ar = call_stack.records.top();
+    call_stack.records.pop();
+    return new_node;
 }
 
 AST* Interpreter::visitCompound(Compound* node){
@@ -145,7 +151,7 @@ AST* Interpreter::visitAssign(Assign* node){
     if (var_value == nullptr){
         throw runtime_error("Invalid AST* node given to the right of the Assign node");
     }
-    global_variables[var_name] = var_value;
+    call_stack.records.top().members[var_name] = var_value;
 
     return new NoOp();
 }
@@ -153,8 +159,8 @@ AST* Interpreter::visitAssign(Assign* node){
 AST* Interpreter::visitVar(Var* node){
     Token token = node->token;
     string var_name = token.value;
-
-    return global_variables[var_name];
+    Num* var = call_stack.records.top().members.at(var_name);
+    return var;
 }
 
 AST* Interpreter::visitNoOp(NoOp* node){
@@ -172,9 +178,6 @@ AST* Interpreter::visitBlock(Block* node){
 }
 
 AST* Interpreter::visitVarDecl(VarDecl* node){
-    visit(node->var);
-    visit(node->type);
-
     return new NoOp();
 }
 
@@ -187,6 +190,24 @@ AST* Interpreter::visitProcedureDeclaration(ProcedureDeclaration* node){
 }
 
 AST* Interpreter::visitProcedureCall(ProcedureCall* node){
+    string procedure_name = node->name;
+    int level = call_stack.records.top().level + 1;
+    ActivationRecord procedure_ar = ActivationRecord(procedure_name, ARType::AR_PROCEDURE, level);
+    vector<Param*> formal_arguments = node->procedure_symbol->params;
+    vector<AST*> given_arguments = node->given_params;
+
+    for (int idx = 0; idx < given_arguments.size(); idx++){
+        string name = formal_arguments[idx]->var->token.value;
+        Num* value = dynamic_cast<Num*>(visit(given_arguments[idx]));
+        if (value == nullptr){
+            throw runtime_error("Given argument couldn't be converted to type Num*");
+        }
+        procedure_ar.members[name] = value;
+    }
+
+    call_stack.records.push(procedure_ar);
+    visit(node->procedure_symbol->block);
+    call_stack.records.pop();
     return new NoOp();
 }
 

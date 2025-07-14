@@ -100,10 +100,7 @@ void SemanticAnalyzer::visit(AST* node){
 void SemanticAnalyzer::visitProgram(Program* node){
     ScopedSymbolTable* global_scope = new ScopedSymbolTable("Global", 1, current_scope);
     current_scope = global_scope;
-    cout << "Entered the global scope\n";
     visit(node->block);
-    cout << global_scope->toString() << "\n";
-    cout << "Leaving the global scope\n";
     current_scope = current_scope->enclosing_scope;
 }
 
@@ -172,7 +169,6 @@ void SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
 
     int level = current_scope->level + 1;
     ScopedSymbolTable* procedure_scope = new ScopedSymbolTable(procedure_name, level, current_scope);
-    cout << "Entering " + procedure_name + "\n";
     current_scope = procedure_scope;
 
     for (Param* param : node->formal_params){
@@ -183,10 +179,8 @@ void SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
         current_scope->define(symbol);
         procedure_symbol->params.push_back(param);
     }
-
+    procedure_symbol->block = node->block;
     visit(node->block);
-    cout << procedure_scope->toString() << '\n';
-    cout << "Leaving " + procedure_name + "\n";
     current_scope = current_scope->enclosing_scope;
 }
 
@@ -196,6 +190,7 @@ void SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     if (procedure_symbol == nullptr){
         error(ErrorCode::ID_NOT_FOUND, node->token);
     }
+    node->procedure_symbol = procedure_symbol;
     int actual_size = size(procedure_symbol->params);
     int given_size = size(node->given_params);
 

@@ -29,13 +29,6 @@ int main(){
     Interpreter interpreter = Interpreter(tree); 
     interpreter.interpret();
     
-    for (auto entry : interpreter.global_variables){
-        if (entry.second != nullptr){
-            cout << entry.first << ": " << entry.second->value << '\n';
-        } 
-    }
-
-
     /*
     Token token = parser.current_token;
     while (token.type != TokenType::END_OF_FILE){

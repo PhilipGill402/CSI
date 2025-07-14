@@ -31,6 +31,7 @@ public:
 class ProcedureSymbol : public Symbol{
 public:
     std::vector<Param*> params;
+    Block* block;
 
     ProcedureSymbol(std::string);
 };

@@ -2,10 +2,12 @@
 #include <stdexcept>
 #include <iostream>
 #include "ast.h"
+#include "activation_record.h"
+#include "symbol.h"
 
 class Interpreter{
 public:
-    std::unordered_map<std::string, Num*> global_variables;   
+    CallStack call_stack = CallStack(); 
     AST* tree;
 
     Interpreter(AST*);

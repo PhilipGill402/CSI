@@ -4,6 +4,7 @@
 #include <lexer.h>
 #include <unordered_map>
 
+class ProcedureSymbol;
 class Block;
 class Compound;
 class VarDecl;
@@ -130,6 +131,7 @@ public:
     std::string name;
     std::vector<AST*> given_params;
     Token token;
+    ProcedureSymbol* procedure_symbol;
 
     ProcedureCall(std::string, std::vector<AST*>&, Token);
 };
