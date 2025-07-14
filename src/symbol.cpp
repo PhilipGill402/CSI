@@ -55,6 +55,7 @@ string ScopedSymbolTable::toString(){
 void ScopedSymbolTable::add_builtins(){
     define(new BuiltInSymbol("INTEGER"));
     define(new BuiltInSymbol("REAL"));
+    define(new BuiltInSymbol("BOOLEAN"));
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
@@ -101,6 +102,7 @@ void SemanticAnalyzer::visitProgram(Program* node){
     ScopedSymbolTable* global_scope = new ScopedSymbolTable("Global", 1, current_scope);
     current_scope = global_scope;
     visit(node->block);
+    cout << current_scope->toString() << "\n";
     current_scope = current_scope->enclosing_scope;
 }
 

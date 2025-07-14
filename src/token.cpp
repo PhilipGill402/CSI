@@ -23,6 +23,9 @@ string TtoS(TokenType type){
         case TokenType::PROGRAM: return "PROGRAM";
         case TokenType::INTEGER: return "INTEGER";
         case TokenType::REAL: return "REAL";
+        case TokenType::BOOLEAN : return "BOOLEAN";
+        case TokenType::TRUE : return "TRUE";
+        case TokenType::FALSE : return "FALSE";
         case TokenType::INT_DIV: return "INT_DIV";
         case TokenType::VAR: return "VAR";
         case TokenType::PROCEDURE: return "PROCEDURE";
@@ -52,6 +55,9 @@ string get_TokenType(TokenType type){
         case TokenType::PROGRAM: return "PROGRAM";
         case TokenType::INTEGER: return "INTEGER";
         case TokenType::REAL: return "REAL";
+        case TokenType::BOOLEAN: return "BOOLEAN";
+        case TokenType::TRUE: return "TRUE";
+        case TokenType::FALSE: return "FALSE";
         case TokenType::INT_DIV: return "INT_DIV";
         case TokenType::VAR: return "VAR";
         case TokenType::PROCEDURE: return "PROCEDURE";
@@ -68,6 +74,12 @@ TokenType StoR(string str){
         return TokenType::INTEGER;
     } else if (str == "REAL"){
         return TokenType::REAL;
+    } else if (str == "BOOLEAN"){
+        return TokenType::BOOLEAN;
+    } else if (str == "TRUE"){
+        return TokenType::TRUE;
+    } else if (str == "FALSE"){
+        return TokenType::FALSE;   
     } else if (str == "DIV"){
         return TokenType::DIV;
     } else if (str == "VAR"){

@@ -34,6 +34,11 @@ public:
     Real(double);
 };
 
+class Boolean : public Num{
+public:
+    Boolean(bool);
+};
+
 class Op : public AST{
 public:
     std::string value;

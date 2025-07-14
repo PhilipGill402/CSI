@@ -6,6 +6,7 @@ Num::Num(int v): value(v){};
 Num::Num(double v): value(v){};
 Integer::Integer(int v): Num(v){};
 Real::Real(double v): Num(v){};
+Boolean::Boolean(bool v): Num(v ? 1 : 0){};
 Op::Op(string v): value(v){};
 BinaryOp::BinaryOp(AST* l, Op* o, AST* r): left(l), op(o), right(r){};
 UnaryOp::UnaryOp(Op* o, AST* e): op(o), expr(e){};

@@ -54,6 +54,16 @@ AST* Parser::factor(){
         eat(TokenType::REAL_CONST); 
         Real* node = new Real(value);
         return node;
+    } else if (current_token.type == TokenType::TRUE){
+        bool value = true;
+        eat(TRUE);
+        Boolean* node = new Boolean(value);
+        return node;
+    } else if (current_token.type == TokenType::FALSE){
+        bool value = false;
+        eat(FALSE);
+        Boolean* node = new Boolean(value);
+        return node;
     } else if (current_token.type == TokenType::LPAREN){
         eat(LPAREN);
         AST* node = expr();
@@ -206,6 +216,9 @@ Type* Parser::type_spec(){
     } else if (current_token.type == TokenType::REAL){
         type = TokenType::REAL;
         eat(REAL);
+    } else if (current_token.type == TokenType::BOOLEAN){
+        type = TokenType::BOOLEAN;
+        eat(BOOLEAN);
     } else {
         throw runtime_error("Unrecognized type in type_spec()");
     }

@@ -40,6 +40,8 @@ AST* Interpreter::visit(AST* node){
         return visitProcedureDeclaration(procedure_declaration);
     } else if (auto procedure_call = dynamic_cast<ProcedureCall*>(node)){
         return visitProcedureCall(procedure_call);
+    } else if (auto boolean = dynamic_cast<Boolean*>(node)){
+        return new Boolean(visitBoolean(boolean));
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -50,6 +52,10 @@ int Interpreter::visitInteger(Integer* node){
 }
 
 double Interpreter::visitReal(Real* node){
+    return node->value;
+}
+
+bool Interpreter::visitBoolean(Boolean* node){
     return node->value;
 }
 
@@ -128,6 +134,7 @@ AST* Interpreter::visitProgram(Program* node){
     call_stack.records.push(program_ar);
     AST* new_node = visit(node->block);
     ActivationRecord ar = call_stack.records.top();
+    cout << ar.toString();
     call_stack.records.pop();
     return new_node;
 }
