@@ -65,10 +65,10 @@ public:
 
 class Block : public AST{
 public:
-    std::vector<VarDecl*> declarations;
+    std::vector<AST*> declarations;
     Compound* compound_statement;
 
-    Block(std::vector<VarDecl*>&, Compound*);
+    Block(std::vector<AST*>&, Compound*);
 };
 
 class VarDecl : public AST{
@@ -106,6 +106,32 @@ public:
     Token token;
 
     Var(Token);
+};
+
+class Param : public AST{
+public:
+    Var* var;
+    Type* type;
+
+    Param(Var*, Type*);
+};
+
+class ProcedureDeclaration : public AST{
+public:
+    std::string name;
+    std::vector<Param*> formal_params;
+    Block* block;
+
+    ProcedureDeclaration(std::string, std::vector<Param*>&, Block*);
+};
+
+class ProcedureCall : public AST{
+public:
+    std::string name;
+    std::vector<AST*> given_params;
+    Token token;
+
+    ProcedureCall(std::string, std::vector<AST*>&, Token);
 };
 
 class NoOp : public AST{};

@@ -36,6 +36,10 @@ AST* Interpreter::visit(AST* node){
         return visitVarDecl(varDecl);
     } else if (auto type = dynamic_cast<Type*>(node)){
         return visitType(type);
+    } else if (auto procedure_declaration = dynamic_cast<ProcedureDeclaration*>(node)){
+        return visitProcedureDeclaration(procedure_declaration);
+    } else if (auto procedure_call = dynamic_cast<ProcedureCall*>(node)){
+        return visitProcedureCall(procedure_call);
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -74,7 +78,8 @@ Num* Interpreter::visitBinaryOp(BinaryOp* node){
     } else if (op->value == "*"){
         result = left->value * right->value;
     } else if (op->value == "/"){
-        result = left->value / right->value;
+        result = static_cast<double>(left->value) / right->value;
+        return new Real(result);
     } else if (op->value == "DIV"){
         int leftVal = static_cast<int>(left->value);
         int rightVal = static_cast<int>(right->value);
@@ -157,8 +162,8 @@ AST* Interpreter::visitNoOp(NoOp* node){
 }
 
 AST* Interpreter::visitBlock(Block* node){
-    for (VarDecl* varDecl : node->declarations){
-        visit(varDecl);
+    for (AST* decl : node->declarations){
+        visit(decl);
     }
 
     visit(node->compound_statement);
@@ -174,6 +179,14 @@ AST* Interpreter::visitVarDecl(VarDecl* node){
 }
 
 AST* Interpreter::visitType(Type* node){
+    return new NoOp();
+}
+
+AST* Interpreter::visitProcedureDeclaration(ProcedureDeclaration* node){
+    return new NoOp();
+}
+
+AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     return new NoOp();
 }
 

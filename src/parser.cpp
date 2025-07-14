@@ -5,14 +5,18 @@ using namespace std;
 
 Parser::Parser(Lexer& l) : lexer(l), current_token(lexer.get_next_token()) {}
 
+void Parser::error(ErrorCode error_code, TokenType expected_token_type, Token received_token){
+    string msg = EtoS(error_code) + " -> " "Expected: " + TtoS(expected_token_type) + " Received: " + received_token.toString(); 
+    cerr << msg << "\n";
+    abort();
+}
+
 void Parser::eat(TokenType type){
     if (current_token.type == type){
         current_token = lexer.get_next_token();
     }
     else{
-        cout << current_token.toString() << '\n';
-        cout << TtoS(type) << '\n';
-        throw invalid_argument("Token type and the current token do not match");
+        error(ErrorCode::UNEXPECTED_TOKEN, type, current_token);
     }
 }
 
@@ -101,8 +105,8 @@ AST* Parser::program(){
     return node;
 }
 
-AST* Parser::block(){
-    vector<VarDecl*> decls = declarations();
+Block* Parser::block(){
+    vector<AST*> decls = declarations();
     Compound* compound = dynamic_cast<Compound*>(compound_statement());
 
     Block* node = new Block(decls, compound);
@@ -110,9 +114,9 @@ AST* Parser::block(){
     return node;
 }
 
-vector<VarDecl*> Parser::declarations(){
-    vector<VarDecl*> decls = {};
-    if (current_token.type == TokenType::VAR){
+vector<AST*> Parser::declarations(){
+    vector<AST*> decls = {};
+    while (current_token.type == TokenType::VAR){
         eat(VAR);
         do
         {
@@ -121,8 +125,58 @@ vector<VarDecl*> Parser::declarations(){
             eat(SEMI);
         } while (current_token.type == TokenType::ID);
     } 
+    while (current_token.type == TokenType::PROCEDURE){
+        eat(PROCEDURE);
+        vector<Param*> formal_params;
+        string procedure_name = current_token.value;
+        eat(ID);
+        if (current_token.type == TokenType::LPAREN){
+            eat(LPAREN); 
+            formal_params = formal_parameter_list();
+            eat(RPAREN);
+        } 
+        eat(SEMI);  
+        Block* procedure_block = block();
+        eat(SEMI);
+        ProcedureDeclaration* procedure_declaration = new ProcedureDeclaration(procedure_name, formal_params, procedure_block);
+        decls.push_back(procedure_declaration);
+    }
     
     return decls;
+}
+
+vector<Param*> Parser::formal_parameter_list(){
+    vector<Param*> parameters = formal_parameters();
+    if (current_token.type == TokenType::SEMI){
+        eat(SEMI);
+        vector<Param*> new_parameters = formal_parameter_list();
+        parameters.insert(parameters.end(), new_parameters.begin(), new_parameters.end());
+    }
+
+    return parameters;
+}
+
+vector<Param*> Parser::formal_parameters(){
+    vector<Token> tokens = {current_token};
+    eat(ID);
+    while(current_token.type == TokenType::COMMA){
+        eat(COMMA);
+        tokens.push_back(current_token);
+        eat(ID);
+    }
+    eat(COLON);
+    Type* type = type_spec();
+
+    vector<Param*> formal_params;
+    formal_params.reserve(tokens.size());
+    
+    for (Token token : tokens){
+        Var* var = new Var(token);
+        Param* param = new Param(var, type);
+        formal_params.push_back(param);
+    }
+
+    return formal_params;
 }
 
 vector<VarDecl*> Parser::variable_declarations(){
@@ -185,8 +239,10 @@ AST* Parser::statement(){
     if (current_token.type == BEGIN){
         //compound statement
         node = compound_statement();
-    } else if (current_token.type == ID){
+    } else if (current_token.type == ID && lexer.current_char == '('){
         //assignment statement
+        node = procedure_call_statement();
+    } else if (current_token.type == ID) {
         node = assignment_statement();
     } else {
         //empty
@@ -210,6 +266,31 @@ AST* Parser::variable(){
     eat(ID);
 
     return new Var(token);
+}
+
+AST* Parser::procedure_call_statement(){
+    Token token = current_token;
+    string procedure_name = token.value;
+    vector<AST*> given_params;
+    eat(ID);
+    eat(LPAREN);
+    
+    if (current_token.type != TokenType::RPAREN){
+        AST* node = expr();
+        given_params.push_back(node);
+    }
+
+    while (current_token.type == COMMA){
+        eat(COMMA);
+        AST* node = expr();
+        given_params.push_back(node);
+    }
+
+    eat(RPAREN);
+
+    ProcedureCall* procedure_call = new ProcedureCall(procedure_name, given_params, token);
+
+    return procedure_call;
 }
 
 AST* Parser::empty(){

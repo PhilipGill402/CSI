@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "lexer.h"
 #include "ast.h"
+#include "error.h"
 
 class Parser{
 public:
@@ -12,14 +13,17 @@ public:
     
     Parser(Lexer&);
     
+    void error(ErrorCode, TokenType, Token);
     void eat(TokenType);
     Token get_next_token();
     AST* term();
     AST* expr();
     AST* factor();
     AST* program();
-    AST* block();
-    std::vector<VarDecl*> declarations();
+    Block* block();
+    std::vector<AST*> declarations();
+    std::vector<Param*> formal_parameter_list();
+    std::vector<Param*> formal_parameters();
     std::vector<VarDecl*> variable_declarations();
     Type* type_spec();
     AST* compound_statement();
@@ -27,6 +31,7 @@ public:
     AST* statement();
     AST* assignment_statement();
     AST* variable();
+    AST* procedure_call_statement();
     AST* empty();
     AST* parse();
 };

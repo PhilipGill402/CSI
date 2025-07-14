@@ -23,5 +23,7 @@ public:
     AST* visitBlock(Block*);
     AST* visitVarDecl(VarDecl*);
     AST* visitType(Type*);
+    AST* visitProcedureDeclaration(ProcedureDeclaration*);
+    AST* visitProcedureCall(ProcedureCall*);
     void interpret();
 };

@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
+#include "symbol.h"
+#include "error.h"
 #include <iostream>
 #include <fstream>
 
@@ -18,17 +20,20 @@ int main(){
     }
 
     file.close();
-
     //tokenizing
     Lexer lexer = Lexer(text);
     Parser parser = Parser(lexer);
     AST* tree = parser.parse();
+    SemanticAnalyzer semantics = SemanticAnalyzer();
+    semantics.visit(tree);
     Interpreter interpreter = Interpreter(tree); 
     interpreter.interpret();
-    for (auto entry : interpreter.global_variables){
-        cout << entry.first << ": " << entry.second->value << '\n';
-    }
     
+    for (auto entry : interpreter.global_variables){
+        if (entry.second != nullptr){
+            cout << entry.first << ": " << entry.second->value << '\n';
+        } 
+    }
 
 
     /*
