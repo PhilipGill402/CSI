@@ -87,6 +87,38 @@ AST* Parser::factor(){
 }
 
 AST* Parser::expr(){
+    return or_expr();
+}
+
+AST* Parser::or_expr(){
+    AST* node = and_expr();
+    
+    while (current_token.type == TokenType::OR){
+        eat(OR);
+        AST* right = and_expr();
+        node = new BinaryOp(node, new Op("OR"), right); 
+    }
+
+    return node;
+}
+
+AST* Parser::and_expr(){
+    AST* node = comparison();
+
+    while (current_token.type == TokenType::AND){
+        eat(AND);
+        AST* right = comparison();
+        node = new BinaryOp(node, new Op("AND"), right);
+    }
+
+    return node;
+}
+
+AST* Parser::comparison(){
+
+}
+
+AST* Parser::additive(){
     AST* node = term();
     
     while (current_token.type == TokenType::ADD || current_token.type == TokenType::SUB){

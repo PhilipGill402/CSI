@@ -9,6 +9,16 @@ string TtoS(TokenType type){
         case TokenType::SUB: return "-";
         case TokenType::MUL: return "*";
         case TokenType::DIV: return "/";
+        case TokenType::AND: return "AND";
+        case TokenType::OR: return "OR";
+        case TokenType::NOT: return "NOT";
+        case TokenType::XOR: return "XOR";
+        case TokenType::GREATER_THAN: return ">";
+        case TokenType::EQUAL: return "==";
+        case TokenType::NOT_EQUAL: return "!=";
+        case TokenType::LESS_THAN: return "<";
+        case TokenType::LTE: return "<=";
+        case TokenType::GTE: return ">=";
         case TokenType::END_OF_FILE: return "EOF";
         case TokenType::LPAREN: return "(";
         case TokenType::RPAREN: return ")";
@@ -41,6 +51,16 @@ string get_TokenType(TokenType type){
         case TokenType::SUB: return "SUB";
         case TokenType::MUL: return "MUL";
         case TokenType::DIV: return "DIV";
+        case TokenType::AND: return "AND";
+        case TokenType::OR: return "OR";
+        case TokenType::NOT: return "NOT";
+        case TokenType::XOR: return "XOR";
+        case TokenType::GREATER_THAN: return ">";
+        case TokenType::EQUAL: return "==";
+        case TokenType::NOT_EQUAL: return "!=";
+        case TokenType::LESS_THAN: return "<";
+        case TokenType::LTE: return "<=";
+        case TokenType::GTE: return ">=";
         case TokenType::END_OF_FILE: return "END_OF_FILE";
         case TokenType::LPAREN: return "LPAREN";
         case TokenType::RPAREN: return "RPAREN";
@@ -76,6 +96,14 @@ TokenType StoR(string str){
         return TokenType::REAL;
     } else if (str == "BOOLEAN"){
         return TokenType::BOOLEAN;
+    } else if (str == "AND"){
+        return TokenType::AND;
+    } else if (str == "NOT"){
+        return TokenType::NOT;
+    } else if (str == "OR"){
+        return TokenType::OR;
+    } else if (str == "XOR"){
+        return TokenType::XOR;
     } else if (str == "TRUE"){
         return TokenType::TRUE;
     } else if (str == "FALSE"){

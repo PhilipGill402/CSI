@@ -1,5 +1,10 @@
 program Main;
 var a : boolean;
+var b : boolean;
+var c : boolean;
 begin { Main }
+   b := false;
    a := true;
+   c := a and b;
+
 end.  { Main }

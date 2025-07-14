@@ -18,6 +18,10 @@ public:
     Token get_next_token();
     AST* term();
     AST* expr();
+    AST* or_expr();
+    AST* and_expr();
+    AST* comparison();
+    AST* additive();
     AST* factor();
     AST* program();
     Block* block();
