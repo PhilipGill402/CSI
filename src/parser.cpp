@@ -108,12 +108,24 @@ AST* Parser::or_expr(){
 }
 
 AST* Parser::and_expr(){
-    AST* node = comparison();
+    AST* node = xor_expr();
 
     while (current_token.type == TokenType::AND){
         eat(AND);
-        AST* right = comparison();
+        AST* right = xor_expr();
         node = new BinaryOp(node, new Op("AND"), right);
+    }
+
+    return node;
+}
+
+AST* Parser::xor_expr(){
+    AST* node = comparison();
+
+    while (current_token.type == TokenType::XOR){
+        eat(XOR);
+        AST* right = comparison();
+        node = new BinaryOp(node, new Op("XOR"), right);
     }
 
     return node;
@@ -121,21 +133,21 @@ AST* Parser::and_expr(){
 
 AST* Parser::comparison(){
     AST* node = additive();
-    TokenType type = current_token.type; 
-    while (type == EQUAL || type == NOT_EQUAL || type == GREATER_THAN || type == LESS_THAN || type == GTE || type == LTE){
-        Op* op; 
-        if (type == EQUAL){
-            op = new Op("==");
-        } else if (type == NOT_EQUAL){
-            op = new Op("!=");
-        } else if (type == GREATER_THAN){
-            op = new Op(">");
-        } else if (type == LESS_THAN){
-            op = new Op("<");
-        } else if (type == GTE){
-            op = new Op(">=");
-        } else if (type == LTE){
-            op = new Op("<=");
+    while (current_token.type == EQUAL || current_token.type == NOT_EQUAL || current_token.type == GREATER_THAN || current_token.type == LESS_THAN || current_token.type == GTE || current_token.type == LTE){
+        cout << current_token.value << "\n";  
+        Op* op = new Op(current_token.value); 
+        if (current_token.type == EQUAL){
+            eat(EQUAL); 
+        } else if (current_token.type == NOT_EQUAL){
+            eat(NOT_EQUAL); 
+        } else if (current_token.type == GREATER_THAN){
+            eat(GREATER_THAN); 
+        } else if (current_token.type == LESS_THAN){
+            eat(LESS_THAN); 
+        } else if (current_token.type == GTE){
+            eat(GTE); 
+        } else if (current_token.type == LTE){
+            eat(LTE); 
         }
 
         node = new BinaryOp(node, op, additive());
@@ -146,7 +158,6 @@ AST* Parser::comparison(){
 
 AST* Parser::additive(){
     AST* node = term();
-    
     while (current_token.type == TokenType::ADD || current_token.type == TokenType::SUB){
         Op* op = new Op(current_token.value);
         if (current_token.type == TokenType::ADD){
@@ -277,6 +288,9 @@ Type* Parser::type_spec(){
     } else if (current_token.type == TokenType::BOOLEAN){
         type = TokenType::BOOLEAN;
         eat(BOOLEAN);
+    } else if (current_token.type == TokenType::CHAR){
+        type = TokenType::CHAR;
+        eat(CHAR);
     } else {
         throw runtime_error("Unrecognized type in type_spec()");
     }

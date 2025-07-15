@@ -33,6 +33,7 @@ enum TokenType{
     INTEGER,
     REAL,
     BOOLEAN,
+    CHAR,
     TRUE,
     FALSE,
     INT_DIV,

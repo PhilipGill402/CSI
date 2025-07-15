@@ -8,7 +8,7 @@ string ActivationRecord::toString(){
     string str = "";
     for (auto entry : members){
         if (entry.second != nullptr){
-            str += entry.first + ": " + to_string(entry.second->value) + "\n";
+            str += entry.first + ": " + entry.second->toString() + "\n";
         }
     }
 

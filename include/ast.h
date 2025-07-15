@@ -22,21 +22,34 @@ public:
     double value;
     Num(int);
     Num(double);
+    Num(char);
+    
+    virtual std::string toString() const = 0; 
+    virtual ~Num() = default;
 };
 
 class Integer : public Num{
 public:
     Integer(int);
+    std::string toString() const override;
 };
 
 class Real : public Num{
 public:
     Real(double);
+    std::string toString() const override;
 };
 
 class Boolean : public Num{
 public:
     Boolean(bool);
+    std::string toString() const override;
+};
+
+class Char : public Num{
+public:
+    Char(char);
+    std::string toString() const override;
 };
 
 class Op : public AST{

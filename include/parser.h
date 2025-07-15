@@ -20,6 +20,7 @@ public:
     AST* expr();
     AST* or_expr();
     AST* and_expr();
+    AST* xor_expr();
     AST* comparison();
     AST* additive();
     AST* factor();

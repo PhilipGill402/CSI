@@ -91,18 +91,33 @@ Num* Interpreter::visitBinaryOp(BinaryOp* node){
         int rightVal = static_cast<int>(right->value);
         result = static_cast<int>(leftVal / rightVal);
         return new Integer(result);
+    } else if (op->value == "AND"){
+        result = static_cast<bool>(left->value && right->value);
+        return new Boolean(result);
+    } else if (op->value == "OR"){
+        result = static_cast<bool>(left->value || right->value);
+        return new Boolean(result);
+    } else if (op->value == "XOR") {
+        result = static_cast<bool>(left->value != right->value);
+        return new Boolean(result);
     } else if (op->value == "=="){
-        result = static_cast<bool>(left->value == right->value);   
+        result = static_cast<bool>(left->value == right->value);
+        return new Boolean(result);
     } else if (op->value == "!="){
         result = static_cast<bool>(left->value != right->value);
+        return new Boolean(result);
     } else if (op->value == "<"){
         result = static_cast<bool>(left->value < right->value);
+        return new Boolean(result);
     } else if (op->value == ">"){
         result = static_cast<bool>(left->value > right->value);
+        return new Boolean(result);
     } else if (op->value == "<="){
         result = static_cast<bool>(left->value <= right->value);
+        return new Boolean(result);
     } else if (op->value == ">="){
         result = static_cast<bool>(left->value >= right->value);
+        return new Boolean(result);
     } else {
         throw invalid_argument("Invalid operator type in 'visitBinaryOp'");
     }

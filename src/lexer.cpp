@@ -142,7 +142,24 @@ Token Lexer::get_next_token(){
                 return Token(TokenType::COLON, ":", currLineno, currColumn); 
             case ',':
                 advance();
-                return Token(TokenType::COMMA, ",", currLineno, currColumn); 
+                return Token(TokenType::COMMA, ",", currLineno, currColumn);
+            case '>':
+                if (peek() == '='){
+                    advance(); 
+                    advance();
+                    return Token(TokenType::GTE, ">=", currLineno, currColumn);
+                } 
+                advance();
+                return Token(TokenType::GREATER_THAN, ">", currLineno, currColumn);
+                
+            case '<':
+                if (peek() == '='){
+                    advance();
+                    advance();
+                    return Token(TokenType::LTE, "<=", currLineno, currColumn);
+                }
+                advance();
+                return Token(TokenType::LESS_THAN, "<", currLineno, currColumn);
             default:
                 error(); 
         }
