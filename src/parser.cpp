@@ -11,6 +11,14 @@ void Parser::error(ErrorCode error_code, TokenType expected_token_type, Token re
     abort();
 }
 
+void Parser::unsupported_operation_error(TokenType type, Op* op){
+    cerr << "Unsupported operation for type " + TtoS(type) + " with operand " + op->value + "\n";
+}
+
+void check_char_operation(){
+    
+}
+
 void Parser::eat(TokenType type){
     if (current_token.type == type){
         current_token = lexer.get_next_token();
@@ -36,8 +44,11 @@ AST* Parser::term(){
         }else if (current_token.type == TokenType::INT_DIV){
             eat(TokenType::INT_DIV);
         }
-
-        node = new BinaryOp(node, op, factor());
+        AST* right = factor();
+        if (dynamic_cast<Char*>(node) == nullptr || dynamic_cast<Char*>(right) == nullptr){
+            unsupported_operation_error(TokenType::CHAR, op);
+        }
+        node = new BinaryOp(node, op, right);
     }
     
     return node;
@@ -72,17 +83,20 @@ AST* Parser::factor(){
     } else if (current_token.type == TokenType::ADD){
         Op* op = new Op(current_token.value);
         eat(ADD);
+        AST* right = factor();
         AST* node = new UnaryOp(op, factor());
         return node;
     } else if (current_token.type == TokenType::SUB){
         Op* op = new Op(current_token.value);
         eat(SUB);
-        AST* node = new UnaryOp(op, factor());
+        AST* right = factor(); 
+        AST* node = new UnaryOp(op, right);
         return node;
     } else if (current_token.type == TokenType::NOT){
         Op* op = new Op(current_token.value);
         eat(NOT);
-        AST* node = new UnaryOp(op, factor());
+        AST* right = factor();
+        AST* node = new UnaryOp(op, right);
         return node;
     } else if (current_token.type == TokenType::ID){
         return variable();
@@ -91,7 +105,18 @@ AST* Parser::factor(){
     }
 }
 
-AST* Parser::expr(){
+AST* Parser::expr(){ 
+    if (current_token.type == TokenType::SINGLE_QUOTE){
+        AST* node; 
+        eat(SINGLE_QUOTE);
+        if (current_token.value.size() > 1){
+            error(ErrorCode::UNEXPECTED_TOKEN, TokenType::ID, current_token);
+        } 
+        node = new Char(current_token.value[0]);
+        eat(ID);
+        eat(SINGLE_QUOTE); 
+        return node; 
+    }
     return or_expr();
 }
 
@@ -101,6 +126,7 @@ AST* Parser::or_expr(){
     while (current_token.type == TokenType::OR){
         eat(OR);
         AST* right = and_expr();
+        
         node = new BinaryOp(node, new Op("OR"), right); 
     }
 

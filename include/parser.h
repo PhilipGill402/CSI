@@ -14,6 +14,7 @@ public:
     Parser(Lexer&);
     
     void error(ErrorCode, TokenType, Token);
+    void unsupported_operation_error(TokenType, Op*);
     void eat(TokenType);
     Token get_next_token();
     AST* term();

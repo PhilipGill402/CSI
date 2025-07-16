@@ -42,6 +42,8 @@ AST* Interpreter::visit(AST* node){
         return visitProcedureCall(procedure_call);
     } else if (auto boolean = dynamic_cast<Boolean*>(node)){
         return new Boolean(visitBoolean(boolean));
+    } else if (auto character = dynamic_cast<Char*>(node)){
+        return new Char(visitChar(character));
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -57,6 +59,10 @@ double Interpreter::visitReal(Real* node){
 
 bool Interpreter::visitBoolean(Boolean* node){
     return node->value;
+}
+
+char Interpreter::visitChar(Char* node){
+    return static_cast<char>(node->value);
 }
 
 Num* Interpreter::visitBinaryOp(BinaryOp* node){

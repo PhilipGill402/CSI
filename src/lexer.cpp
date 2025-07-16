@@ -27,11 +27,11 @@ Token Lexer::id(){
         value += current_char;
         advance();
     }
-    value = toUpper(value);
+    string keyword_value = toUpper(value);
 
-    if (find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), value) != RESERVED_KEYWORDS.end()){
-        TokenType type = StoR(value);
-        return Token(type, value, currLineno, currColumn);
+    if (find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), keyword_value) != RESERVED_KEYWORDS.end()){
+        TokenType type = StoR(keyword_value);
+        return Token(type, keyword_value, currLineno, currColumn);
     } else {
         return Token(TokenType::ID, value, currLineno, currColumn);
     }
@@ -151,7 +151,6 @@ Token Lexer::get_next_token(){
                 } 
                 advance();
                 return Token(TokenType::GREATER_THAN, ">", currLineno, currColumn);
-                
             case '<':
                 if (peek() == '='){
                     advance();
@@ -160,6 +159,9 @@ Token Lexer::get_next_token(){
                 }
                 advance();
                 return Token(TokenType::LESS_THAN, "<", currLineno, currColumn);
+            case '\'':
+                advance();
+                return Token(TokenType::SINGLE_QUOTE, "'", currLineno, currColumn);
             default:
                 error(); 
         }

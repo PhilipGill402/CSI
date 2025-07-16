@@ -16,6 +16,7 @@ public:
     int visitInteger(Integer*);
     double visitReal(Real*);
     bool visitBoolean(Boolean*);
+    char visitChar(Char*);
     Num* visitBinaryOp(BinaryOp*);
     Num* visitUnaryOp(UnaryOp*);
     AST* visitProgram(Program*);

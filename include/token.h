@@ -8,6 +8,7 @@ enum TokenType{
     SUB,
     MUL,
     DIV,
+    SINGLE_QUOTE,
     AND,
     OR,
     NOT,

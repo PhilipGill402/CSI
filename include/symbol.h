@@ -36,6 +36,11 @@ public:
     ProcedureSymbol(std::string);
 };
 
+class EmptySymbol : public Symbol{
+public:
+    EmptySymbol();
+};
+
 class ScopedSymbolTable{
 public:
     std::string name;
@@ -56,17 +61,22 @@ public:
     ScopedSymbolTable* current_scope = new ScopedSymbolTable("Builtins", 0);
 
     void error(ErrorCode, Token);
-    void visit(AST* node);
-    void visitBinaryOp(BinaryOp* node);
-    void visitUnaryOp(UnaryOp* node);
-    void visitProgram(Program* node);
-    void visitCompound(Compound* node);
-    void visitAssign(Assign* node);
-    void visitBlock(Block* node);
-    void visitVarDecl(VarDecl* node);
-    void visitVar(Var* node);
-    void visitNoOp(NoOp* node);
-    void visitNum(Num* node);
-    void visitProcedureDeclaration(ProcedureDeclaration* node);
-    void visitProcedureCall(ProcedureCall* node);
+    void incorrect_type_error(std::string, std::string, Symbol*);
+    Symbol* visit(AST* node);
+    Symbol* visitBinaryOp(BinaryOp* node);
+    Symbol* visitUnaryOp(UnaryOp* node);
+    Symbol* visitProgram(Program* node);
+    Symbol* visitCompound(Compound* node);
+    Symbol* visitAssign(Assign* node);
+    Symbol* visitBlock(Block* node);
+    Symbol* visitVarDecl(VarDecl* node);
+    Symbol* visitVar(Var* node);
+    Symbol* visitNoOp(NoOp* node);
+    Symbol* visitNum(Num* node);
+    Symbol* visitProcedureDeclaration(ProcedureDeclaration* node);
+    Symbol* visitProcedureCall(ProcedureCall* node);
+    Symbol* visitInteger(Integer* node);
+    Symbol* visitReal(Real* node);
+    Symbol* visitBoolean(Boolean* node);
+    Symbol* visitChar(Char* node);
 };

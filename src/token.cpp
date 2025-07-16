@@ -9,6 +9,7 @@ string TtoS(TokenType type){
         case TokenType::SUB: return "-";
         case TokenType::MUL: return "*";
         case TokenType::DIV: return "/";
+        case TokenType::SINGLE_QUOTE: return "'";
         case TokenType::AND: return "AND";
         case TokenType::OR: return "OR";
         case TokenType::NOT: return "NOT";
@@ -52,6 +53,7 @@ string get_TokenType(TokenType type){
         case TokenType::SUB: return "SUB";
         case TokenType::MUL: return "MUL";
         case TokenType::DIV: return "DIV";
+        case TokenType::SINGLE_QUOTE: return "SINGLE_QUOTE";
         case TokenType::AND: return "AND";
         case TokenType::OR: return "OR";
         case TokenType::NOT: return "NOT";

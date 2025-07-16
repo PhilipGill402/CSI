@@ -7,6 +7,7 @@ Symbol::Symbol(string n, string t): name(n), type(t){};
 BuiltInSymbol::BuiltInSymbol(string n): Symbol(n){};
 VarSymbol::VarSymbol(string n, string t): Symbol(n, t){};
 ProcedureSymbol::ProcedureSymbol(string n): Symbol(n){};
+EmptySymbol::EmptySymbol():Symbol("NONE"){};
 
 string Symbol::toString(){
     string str = "<";
@@ -56,64 +57,81 @@ void ScopedSymbolTable::add_builtins(){
     define(new BuiltInSymbol("INTEGER"));
     define(new BuiltInSymbol("REAL"));
     define(new BuiltInSymbol("BOOLEAN"));
+    define(new BuiltInSymbol("CHAR"));
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
-    std::cerr << EtoS(error_code) << " -> " << token.toString() << "\n";
-    std::abort();
+    cerr << EtoS(error_code) << " -> " << token.toString() << "\n";
+    abort();
 }
 
+void SemanticAnalyzer::incorrect_type_error(string expected, string received, Symbol* symbol){
+    cerr << "Expected type of: " + expected + " for symbol " + symbol->toString() + " Received type of: " + received + "\n";
+    abort();
+}
 
-void SemanticAnalyzer::visit(AST* node){
+Symbol* SemanticAnalyzer::visit(AST* node){
     if (node == nullptr){
         throw runtime_error("visit() received a nullptr");
     }
     
     if (auto binOp = dynamic_cast<BinaryOp*>(node)){
-        visitBinaryOp(binOp);
+        return visitBinaryOp(binOp);
     } else if (auto unOp = dynamic_cast<UnaryOp*>(node)){
-        visitUnaryOp(unOp);
+        return visitUnaryOp(unOp);
     } else if (auto program = dynamic_cast<Program*>(node)){
-        visitProgram(program);
+        return visitProgram(program);
     } else if (auto compound = dynamic_cast<Compound*>(node)){
-        visitCompound(compound);
+        return visitCompound(compound);
     } else if (auto assign = dynamic_cast<Assign*>(node)){
-        visitAssign(assign);
+        return visitAssign(assign);
     } else if (auto noOp = dynamic_cast<NoOp*>(node)){
-        visitNoOp(noOp);
+        return visitNoOp(noOp);
     } else if (auto block = dynamic_cast<Block*>(node)){
-        visitBlock(block);        
+        return visitBlock(block);        
     } else if (auto varDecl = dynamic_cast<VarDecl*>(node)){
-        visitVarDecl(varDecl);
+        return visitVarDecl(varDecl);
     } else if (auto var = dynamic_cast<Var*>(node)){
-        visitVar(var);
-    } else if (auto num = dynamic_cast<Num*>(node)){
-        visitNum(num);
+        return visitVar(var);
     } else if (auto procedureDeclaration = dynamic_cast<ProcedureDeclaration*>(node)){
-        visitProcedureDeclaration(procedureDeclaration);
+        return visitProcedureDeclaration(procedureDeclaration);
     } else if (auto procedureCall = dynamic_cast<ProcedureCall*>(node)){
-        visitProcedureCall(procedureCall);
+        return visitProcedureCall(procedureCall);
+    } else if (auto integer = dynamic_cast<Integer*>(node)){
+        return visitInteger(integer);
+    } else if (auto real = dynamic_cast<Real*>(node)){
+        return visitReal(real);
+    } else if (auto boolean = dynamic_cast<Boolean*>(node)){
+        return visitBoolean(boolean);
+    } else if (auto character = dynamic_cast<Char*>(node)){
+        return visitChar(character);
+    } else if (auto num = dynamic_cast<Num*>(node)){
+        throw runtime_error("Unrecognized type given"); 
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
 }
 
-void SemanticAnalyzer::visitProgram(Program* node){
+Symbol* SemanticAnalyzer::visitProgram(Program* node){
     ScopedSymbolTable* global_scope = new ScopedSymbolTable("Global", 1, current_scope);
     current_scope = global_scope;
     visit(node->block);
     cout << current_scope->toString() << "\n";
     current_scope = current_scope->enclosing_scope;
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitBlock(Block* node){
+Symbol* SemanticAnalyzer::visitBlock(Block* node){
     for (AST* decl : node->declarations){
         visit(decl);
     }
     visit(node->compound_statement);
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitVarDecl(VarDecl* node){
+Symbol* SemanticAnalyzer::visitVarDecl(VarDecl* node){
     Token var_token = node->var->token;
     string var_name = var_token.value;
     string var_type = TtoS(node->type->type);
@@ -124,14 +142,22 @@ void SemanticAnalyzer::visitVarDecl(VarDecl* node){
     } else {
         current_scope->define(symbol);
     }
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitAssign(Assign* node){
-    visit(node->left); 
-    visit(node->right);
+Symbol* SemanticAnalyzer::visitAssign(Assign* node){
+    Symbol* var_symbol = visit(node->left); 
+    Symbol* given_symbol = visit(node->right);
+
+    if (var_symbol->type != given_symbol->name){
+        incorrect_type_error(var_symbol->type, given_symbol->name, var_symbol);
+    }
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitVar(Var* node){
+Symbol* SemanticAnalyzer::visitVar(Var* node){
     Token token = node->token;
     string name = token.value;
 
@@ -139,32 +165,40 @@ void SemanticAnalyzer::visitVar(Var* node){
     if (!symbol){
         error(ErrorCode::ID_NOT_FOUND, token);
     }
+
+    return symbol;
 }
 
-void SemanticAnalyzer::visitNum(Num* node){
-
+Symbol* SemanticAnalyzer::visitNum(Num* node){
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitNoOp(NoOp* node){
-
+Symbol* SemanticAnalyzer::visitNoOp(NoOp* node){
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
+Symbol* SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
     visit(node->left);
     visit(node->right);
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitUnaryOp(UnaryOp* node){
+Symbol* SemanticAnalyzer::visitUnaryOp(UnaryOp* node){
     visit(node->expr);
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitCompound(Compound* node){
+Symbol* SemanticAnalyzer::visitCompound(Compound* node){
     for (AST* child : node->children){
         visit(child);
     }
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
+Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
     string procedure_name = node->name;
     ProcedureSymbol* procedure_symbol = new ProcedureSymbol(procedure_name);
     current_scope->define(procedure_symbol);
@@ -184,9 +218,11 @@ void SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
     procedure_symbol->block = node->block;
     visit(node->block);
     current_scope = current_scope->enclosing_scope;
+
+    return new EmptySymbol();
 }
 
-void SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
+Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     string procedure_name = node->name;
     ProcedureSymbol* procedure_symbol = dynamic_cast<ProcedureSymbol*>(current_scope->lookup(procedure_name));
     if (procedure_symbol == nullptr){
@@ -203,4 +239,22 @@ void SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     for (AST* param : node->given_params){
         visit(param);
     }
+
+    return new EmptySymbol();
+}
+
+Symbol* SemanticAnalyzer::visitInteger(Integer* node){
+    return new BuiltInSymbol("INTEGER");
+}
+
+Symbol* SemanticAnalyzer::visitReal(Real* node){
+    return new BuiltInSymbol("REAL");
+}
+
+Symbol* SemanticAnalyzer::visitBoolean(Boolean* node){
+    return new BuiltInSymbol("BOOLEAN");
+}
+
+Symbol* SemanticAnalyzer::visitChar(Char* node){
+    return new BuiltInSymbol("CHAR");
 }

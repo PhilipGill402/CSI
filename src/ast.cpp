@@ -36,5 +36,5 @@ string Boolean::toString() const {
 }
 
 string Char::toString() const {
-    return to_string(static_cast<char>(value));
+    return string(1,static_cast<char>(value));
 }

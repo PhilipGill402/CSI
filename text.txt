@@ -1,6 +1,6 @@
 program Main;
 var a : char;
 begin { Main }
-   
+   a := +'a';
 
 end.  { Main }

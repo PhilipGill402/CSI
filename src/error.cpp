@@ -12,6 +12,10 @@ string EtoS (ErrorCode error_code) {
             return "Duplicate Identifier";
         case ErrorCode::INCORRECT_NUMBER_OF_ARGUMENTS:
             return "Incorrect Number of Arguments";
+        case ErrorCode::INCORRECT_TYPE:
+            return "Incorrect Type";
+        case ErrorCode::UNSUPPORTED_OPERATION:
+            return "Unsupported Operation";
         default:
             return "Unknown Error Code";
     }
