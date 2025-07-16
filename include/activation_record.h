@@ -15,7 +15,7 @@ public:
     std::string name;
     ARType type;
     int level;
-    std::unordered_map<std::string, Num*> members = {};
+    std::unordered_map<std::string, Value*> members = {};
     
     ActivationRecord(std::string, ARType, int);
     std::string toString();

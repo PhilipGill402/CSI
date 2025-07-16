@@ -15,6 +15,7 @@ public:
     
     void error(ErrorCode, TokenType, Token);
     void unsupported_operation_error(TokenType, Op*);
+    void check_char_operation(AST*, AST*, Op*);
     void eat(TokenType);
     Token get_next_token();
     AST* term();

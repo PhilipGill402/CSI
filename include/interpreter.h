@@ -17,8 +17,12 @@ public:
     double visitReal(Real*);
     bool visitBoolean(Boolean*);
     char visitChar(Char*);
-    Num* visitBinaryOp(BinaryOp*);
-    Num* visitUnaryOp(UnaryOp*);
+    std::string visitString(String*);
+    Value* visitBinaryOp(BinaryOp*);
+    Num* visitNumBinaryOp(BinaryOp*);
+    Boolean* visitBoolBinaryOp(BinaryOp*);
+    String* visitStringBinaryOp(BinaryOp*);
+    Value* visitUnaryOp(UnaryOp*);
     AST* visitProgram(Program*);
     AST* visitCompound(Compound*);
     AST* visitAssign(Assign*);

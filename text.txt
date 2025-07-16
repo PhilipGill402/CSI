@@ -1,6 +1,6 @@
 program Main;
-var a : char;
+var a : string;
 begin { Main }
-   a := +'a';
+   a := "hello";
 
 end.  { Main }

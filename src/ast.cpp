@@ -2,13 +2,12 @@
 
 using namespace std;
 
-Num::Num(int v): value(v){};
 Num::Num(double v): value(v){};
-Num::Num(char v): value(static_cast<int>(v)){};
 Integer::Integer(int v): Num(v){};
 Real::Real(double v): Num(v){};
-Boolean::Boolean(bool v): Num(v ? 1 : 0){};
-Char::Char(char v): Num(v){};
+Boolean::Boolean(bool v): value(v){};
+Char::Char(char v): value(v){};
+String::String(string v): value(v){};
 Op::Op(string v): value(v){};
 BinaryOp::BinaryOp(AST* l, Op* o, AST* r): left(l), op(o), right(r){};
 UnaryOp::UnaryOp(Op* o, AST* e): op(o), expr(e){};
@@ -37,4 +36,8 @@ string Boolean::toString() const {
 
 string Char::toString() const {
     return string(1,static_cast<char>(value));
+}
+
+string String::toString() const {
+    return value;
 }

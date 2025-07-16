@@ -11,14 +11,6 @@ void Parser::error(ErrorCode error_code, TokenType expected_token_type, Token re
     abort();
 }
 
-void Parser::unsupported_operation_error(TokenType type, Op* op){
-    cerr << "Unsupported operation for type " + TtoS(type) + " with operand " + op->value + "\n";
-}
-
-void check_char_operation(){
-    
-}
-
 void Parser::eat(TokenType type){
     if (current_token.type == type){
         current_token = lexer.get_next_token();
@@ -45,9 +37,6 @@ AST* Parser::term(){
             eat(TokenType::INT_DIV);
         }
         AST* right = factor();
-        if (dynamic_cast<Char*>(node) == nullptr || dynamic_cast<Char*>(right) == nullptr){
-            unsupported_operation_error(TokenType::CHAR, op);
-        }
         node = new BinaryOp(node, op, right);
     }
     
@@ -100,6 +89,11 @@ AST* Parser::factor(){
         return node;
     } else if (current_token.type == TokenType::ID){
         return variable();
+    } else if (current_token.type == TokenType::STRING_LITERAL){
+        cout << current_token.toString() << "\n";
+        String* node = new String(current_token.value);
+        eat(STRING_LITERAL);
+        return node; 
     } else {
         throw runtime_error("Unexpected token in factor(): " + current_token.value);
     }
@@ -117,6 +111,7 @@ AST* Parser::expr(){
         eat(SINGLE_QUOTE); 
         return node; 
     }
+
     return or_expr();
 }
 
@@ -126,7 +121,6 @@ AST* Parser::or_expr(){
     while (current_token.type == TokenType::OR){
         eat(OR);
         AST* right = and_expr();
-        
         node = new BinaryOp(node, new Op("OR"), right); 
     }
 
@@ -317,6 +311,9 @@ Type* Parser::type_spec(){
     } else if (current_token.type == TokenType::CHAR){
         type = TokenType::CHAR;
         eat(CHAR);
+    } else if (current_token.type == TokenType::STRING){
+        type = TokenType::STRING;
+        eat(STRING);
     } else {
         throw runtime_error("Unrecognized type in type_spec()");
     }

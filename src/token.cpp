@@ -10,6 +10,7 @@ string TtoS(TokenType type){
         case TokenType::MUL: return "*";
         case TokenType::DIV: return "/";
         case TokenType::SINGLE_QUOTE: return "'";
+        case TokenType::DOUBLE_QUOTE: return "\"";
         case TokenType::AND: return "AND";
         case TokenType::OR: return "OR";
         case TokenType::NOT: return "NOT";
@@ -31,11 +32,13 @@ string TtoS(TokenType type){
         case TokenType::COMMA: return ",";
         case TokenType::INTEGER_CONST: return "INTEGER_CONST";
         case TokenType::REAL_CONST: return "REAL_CONST";
+        case TokenType::STRING_LITERAL: return "STRING_LITERAL";
         case TokenType::PROGRAM: return "PROGRAM";
         case TokenType::INTEGER: return "INTEGER";
         case TokenType::REAL: return "REAL";
         case TokenType::BOOLEAN : return "BOOLEAN";
         case TokenType::CHAR : return "CHAR";
+        case TokenType::STRING : return "STRING";
         case TokenType::TRUE : return "TRUE";
         case TokenType::FALSE : return "FALSE";
         case TokenType::INT_DIV: return "INT_DIV";
@@ -54,6 +57,7 @@ string get_TokenType(TokenType type){
         case TokenType::MUL: return "MUL";
         case TokenType::DIV: return "DIV";
         case TokenType::SINGLE_QUOTE: return "SINGLE_QUOTE";
+        case TokenType::DOUBLE_QUOTE: return "DOUBLE_QUOTE";
         case TokenType::AND: return "AND";
         case TokenType::OR: return "OR";
         case TokenType::NOT: return "NOT";
@@ -75,11 +79,13 @@ string get_TokenType(TokenType type){
         case TokenType::COMMA: return "COMMA";
         case TokenType::INTEGER_CONST: return "INTEGER_CONST";
         case TokenType::REAL_CONST: return "REAL_CONST";
+        case TokenType::STRING_LITERAL: return "STRING_LITERAL";
         case TokenType::PROGRAM: return "PROGRAM";
         case TokenType::INTEGER: return "INTEGER";
         case TokenType::REAL: return "REAL";
         case TokenType::BOOLEAN: return "BOOLEAN";
         case TokenType::CHAR: return "CHAR";
+        case TokenType::STRING: return "STRING";
         case TokenType::TRUE: return "TRUE";
         case TokenType::FALSE: return "FALSE";
         case TokenType::INT_DIV: return "INT_DIV";
@@ -102,6 +108,8 @@ TokenType StoR(string str){
         return TokenType::BOOLEAN;
     } else if (str == "CHAR"){
         return TokenType::CHAR;
+    } else if (str == "STRING"){
+        return TokenType::STRING;
     } else if (str == "AND"){
         return TokenType::AND;
     } else if (str == "NOT"){

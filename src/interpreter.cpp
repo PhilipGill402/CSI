@@ -4,7 +4,7 @@ using namespace std;
 
 Interpreter::Interpreter(AST* t): tree(t){};
 
-bool isReal(Num* node){
+bool isReal(Value* node){
     return dynamic_cast<Real*>(node) != nullptr;
 }
 
@@ -44,6 +44,8 @@ AST* Interpreter::visit(AST* node){
         return new Boolean(visitBoolean(boolean));
     } else if (auto character = dynamic_cast<Char*>(node)){
         return new Char(visitChar(character));
+    } else if (auto str = dynamic_cast<String*>(node)){
+        return new String(visitString(str));
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -62,14 +64,30 @@ bool Interpreter::visitBoolean(Boolean* node){
 }
 
 char Interpreter::visitChar(Char* node){
-    return static_cast<char>(node->value);
+    return node->value;
 }
 
-Num* Interpreter::visitBinaryOp(BinaryOp* node){
+string Interpreter::visitString(String* node){
+    return node->value;
+}
+
+Value* Interpreter::visitBinaryOp(BinaryOp* node){
     if (!node->left || !node->right) {
         throw runtime_error("BinaryOp has null left or right child");
     }
 
+    if (dynamic_cast<Num*>(visit(node->left)) && dynamic_cast<Num*>(visit(node->right))){
+        return visitNumBinaryOp(node);
+    } else if (dynamic_cast<Boolean*>(visit(node->left)) && dynamic_cast<Boolean*>(visit(node->right))){
+        return visitBoolBinaryOp(node);
+    } else if (dynamic_cast<String*>(visit(node->left)) && dynamic_cast<String*>(visit(node->right))){
+        return visitStringBinaryOp(node);
+    } else {
+        throw runtime_error("Unsupported type in 'visitBinaryOp'");
+    }
+}
+
+Num* Interpreter::visitNumBinaryOp(BinaryOp* node){
     Num* left = dynamic_cast<Num*>(visit(node->left));
     Op* op = node->op;
     Num* right = dynamic_cast<Num*>(visit(node->right));
@@ -97,45 +115,64 @@ Num* Interpreter::visitBinaryOp(BinaryOp* node){
         int rightVal = static_cast<int>(right->value);
         result = static_cast<int>(leftVal / rightVal);
         return new Integer(result);
-    } else if (op->value == "AND"){
-        result = static_cast<bool>(left->value && right->value);
-        return new Boolean(result);
-    } else if (op->value == "OR"){
-        result = static_cast<bool>(left->value || right->value);
-        return new Boolean(result);
-    } else if (op->value == "XOR") {
-        result = static_cast<bool>(left->value != right->value);
-        return new Boolean(result);
-    } else if (op->value == "=="){
-        result = static_cast<bool>(left->value == right->value);
-        return new Boolean(result);
-    } else if (op->value == "!="){
-        result = static_cast<bool>(left->value != right->value);
-        return new Boolean(result);
-    } else if (op->value == "<"){
-        result = static_cast<bool>(left->value < right->value);
-        return new Boolean(result);
-    } else if (op->value == ">"){
-        result = static_cast<bool>(left->value > right->value);
-        return new Boolean(result);
-    } else if (op->value == "<="){
-        result = static_cast<bool>(left->value <= right->value);
-        return new Boolean(result);
-    } else if (op->value == ">="){
-        result = static_cast<bool>(left->value >= right->value);
-        return new Boolean(result);
     } else {
-        throw invalid_argument("Invalid operator type in 'visitBinaryOp'");
+        throw invalid_argument("Invalid operator type for type 'Num'");
     }
 
     if (isLeftReal || isRightReal){
         return new Real(result);
     }
     return new Integer(static_cast<int>(result));
-    
 }
 
-Num* Interpreter::visitUnaryOp(UnaryOp* node){
+Boolean* Interpreter::visitBoolBinaryOp(BinaryOp* node){
+    Boolean* left = dynamic_cast<Boolean*>(visit(node->left));
+    Op* op = node->op; 
+    Boolean* right = dynamic_cast<Boolean*>(visit(node->right));
+    bool result;
+   
+    if (op->value == "AND"){
+        result = left->value && right->value;
+    } else if (op->value == "OR"){
+        result = left->value || right->value;
+    } else if (op->value == "XOR") {
+        result = left->value != right->value;
+    } else if (op->value == "=="){
+        result = left->value == right->value;
+    } else if (op->value == "!="){
+        result = left->value != right->value;
+    } else if (op->value == "<"){
+        result = left->value < right->value;
+    } else if (op->value == ">"){
+        result = left->value > right->value;
+    } else if (op->value == "<="){
+        result = left->value <= right->value;
+    } else if (op->value == ">="){
+        result = left->value >= right->value;
+    } else {
+        throw invalid_argument("Invalid operator type for type 'Boolean'");
+    }
+
+
+    return new Boolean(result);
+}
+
+String* Interpreter::visitStringBinaryOp(BinaryOp* node){
+    String* left = dynamic_cast<String*>(visit(node->left));
+    Op* op = node->op;
+    String* right = dynamic_cast<String*>(visit(node->right));
+    string result;
+
+    if (op->value == "+"){
+        result = left->value + right->value;
+    } else {
+        throw invalid_argument("Invalid operator type for type 'String'");
+    }
+
+    return new String(result);
+}
+
+Value* Interpreter::visitUnaryOp(UnaryOp* node){
     if (!node->expr || !node->op){
         throw runtime_error("Null argument given to visitUnaryOp()");
     }
@@ -204,7 +241,7 @@ AST* Interpreter::visitAssign(Assign* node){
     }
     Token token = var->token;
     string var_name = token.value;
-    Num* var_value = dynamic_cast<Num*>(visit(node->right));
+    Value* var_value = dynamic_cast<Value*>(visit(node->right));
     if (var_value == nullptr){
         throw runtime_error("Invalid AST* node given to the right of the Assign node");
     }
@@ -216,7 +253,7 @@ AST* Interpreter::visitAssign(Assign* node){
 AST* Interpreter::visitVar(Var* node){
     Token token = node->token;
     string var_name = token.value;
-    Num* var = call_stack.records.top().members.at(var_name);
+    Value* var = call_stack.records.top().members.at(var_name);
     return var;
 }
 

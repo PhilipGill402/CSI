@@ -27,6 +27,7 @@ Token Lexer::id(){
         value += current_char;
         advance();
     }
+    
     string keyword_value = toUpper(value);
 
     if (find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), keyword_value) != RESERVED_KEYWORDS.end()){
@@ -107,6 +108,7 @@ Token Lexer::get_next_token(){
 
         int currLineno = lineno;
         int currColumn = column;
+        string val;
         switch (current_char){
             case '+': 
                 advance();
@@ -162,6 +164,13 @@ Token Lexer::get_next_token(){
             case '\'':
                 advance();
                 return Token(TokenType::SINGLE_QUOTE, "'", currLineno, currColumn);
+            case '"':
+                advance();
+                while (current_char != '"'){
+                    val += current_char;
+                    advance();
+                }
+                return Token(TokenType::STRING_LITERAL, val, currLineno, currColumn);
             default:
                 error(); 
         }

@@ -17,14 +17,17 @@ public:
     virtual ~AST() = default;
 };
 
-class Num : public AST{
+class Value : public AST{
+public:
+    virtual std::string toString() const = 0;
+    virtual ~Value() = default;
+};
+
+class Num : public Value{
 public:
     double value;
-    Num(int);
     Num(double);
-    Num(char);
     
-    virtual std::string toString() const = 0; 
     virtual ~Num() = default;
 };
 
@@ -40,15 +43,24 @@ public:
     std::string toString() const override;
 };
 
-class Boolean : public Num{
+class Boolean : public Value{
 public:
+    bool value;
     Boolean(bool);
     std::string toString() const override;
 };
 
-class Char : public Num{
+class Char : public Value{
 public:
+    char value;
     Char(char);
+    std::string toString() const override;
+};
+
+class String : public Value{
+public:
+    std::string value;
+    String(std::string);
     std::string toString() const override;
 };
 

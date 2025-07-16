@@ -58,6 +58,7 @@ void ScopedSymbolTable::add_builtins(){
     define(new BuiltInSymbol("REAL"));
     define(new BuiltInSymbol("BOOLEAN"));
     define(new BuiltInSymbol("CHAR"));
+    define(new BuiltInSymbol("STRING"));
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
@@ -105,7 +106,9 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         return visitBoolean(boolean);
     } else if (auto character = dynamic_cast<Char*>(node)){
         return visitChar(character);
-    } else if (auto num = dynamic_cast<Num*>(node)){
+    } else if (auto string = dynamic_cast<String*>(node)){
+        return visitString(string);
+    } else if (auto num = dynamic_cast<Value*>(node)){
         throw runtime_error("Unrecognized type given"); 
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
@@ -149,7 +152,6 @@ Symbol* SemanticAnalyzer::visitVarDecl(VarDecl* node){
 Symbol* SemanticAnalyzer::visitAssign(Assign* node){
     Symbol* var_symbol = visit(node->left); 
     Symbol* given_symbol = visit(node->right);
-
     if (var_symbol->type != given_symbol->name){
         incorrect_type_error(var_symbol->type, given_symbol->name, var_symbol);
     }
@@ -178,10 +180,29 @@ Symbol* SemanticAnalyzer::visitNoOp(NoOp* node){
 }
 
 Symbol* SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
-    visit(node->left);
-    visit(node->right);
+    Symbol* left = visit(node->left);
+    Symbol* right = visit(node->right);
 
-    return new EmptySymbol();
+    if (left->name == "INTEGER" && right->name == "INTEGER"){
+        if (node->op->value == "/"){
+            return new BuiltInSymbol("REAL");
+        } 
+        return new BuiltInSymbol("INTEGER");
+    } else if (left->name == "REAL" || right->name == "REAL"){
+        if (node->op->value == "DIV"){
+            return new BuiltInSymbol("INTEGER");
+        } 
+        return new BuiltInSymbol("REAL");
+    } else if (left->name == "BOOLEAN" && right->name == "BOOLEAN"){
+        return new BuiltInSymbol("BOOLEAN");
+    } else if (left->name == "CHAR" && right->name == "CHAR"){
+        return new BuiltInSymbol("CHAR");
+    } else if (left->name == "STRING" && right->name == "STRING"){
+        return new BuiltInSymbol("STRING");
+    } else {
+        incorrect_type_error(left->name, right->name, left);
+        throw new runtime_error("Incorrect Type Error");
+    }
 }
 
 Symbol* SemanticAnalyzer::visitUnaryOp(UnaryOp* node){
@@ -257,4 +278,8 @@ Symbol* SemanticAnalyzer::visitBoolean(Boolean* node){
 
 Symbol* SemanticAnalyzer::visitChar(Char* node){
     return new BuiltInSymbol("CHAR");
+}
+
+Symbol* SemanticAnalyzer::visitString(String* node){
+    return new BuiltInSymbol("STRING");
 }
