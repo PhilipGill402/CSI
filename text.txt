@@ -1,6 +1,6 @@
 program Main;
 var a : string;
 begin { Main }
-   a := "hello";
+   a := "he" + "llo" + " " + "world";
 
 end.  { Main }

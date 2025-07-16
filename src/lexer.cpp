@@ -170,6 +170,7 @@ Token Lexer::get_next_token(){
                     val += current_char;
                     advance();
                 }
+                advance();
                 return Token(TokenType::STRING_LITERAL, val, currLineno, currColumn);
             default:
                 error(); 

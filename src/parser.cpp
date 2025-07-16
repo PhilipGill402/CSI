@@ -1,4 +1,4 @@
-#include <parser.h>
+#include "parser.h"
 #include <interpreter.h>
 
 using namespace std;
@@ -73,7 +73,7 @@ AST* Parser::factor(){
         Op* op = new Op(current_token.value);
         eat(ADD);
         AST* right = factor();
-        AST* node = new UnaryOp(op, factor());
+        AST* node = new UnaryOp(op, right);
         return node;
     } else if (current_token.type == TokenType::SUB){
         Op* op = new Op(current_token.value);
@@ -123,7 +123,7 @@ AST* Parser::or_expr(){
         AST* right = and_expr();
         node = new BinaryOp(node, new Op("OR"), right); 
     }
-
+    
     return node;
 }
 
