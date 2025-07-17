@@ -80,4 +80,5 @@ public:
     Symbol* visitBoolean(Boolean* node);
     Symbol* visitChar(Char* node);
     Symbol* visitString(String* node);
+    Symbol* visitIfStatement(IfStatement* node);
 };

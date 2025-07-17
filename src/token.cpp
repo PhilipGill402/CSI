@@ -16,7 +16,7 @@ string TtoS(TokenType type){
         case TokenType::NOT: return "NOT";
         case TokenType::XOR: return "XOR";
         case TokenType::GREATER_THAN: return ">";
-        case TokenType::EQUAL: return "==";
+        case TokenType::EQUAL: return "=";
         case TokenType::NOT_EQUAL: return "!=";
         case TokenType::LESS_THAN: return "<";
         case TokenType::LTE: return "<=";
@@ -24,6 +24,8 @@ string TtoS(TokenType type){
         case TokenType::END_OF_FILE: return "EOF";
         case TokenType::LPAREN: return "(";
         case TokenType::RPAREN: return ")";
+        case TokenType::LBRACKET: return "{";
+        case TokenType::RBRACKET: return "}";
         case TokenType::DOT: return ".";
         case TokenType::ID: return "ID";
         case TokenType::ASSIGN: return ":=";
@@ -37,6 +39,8 @@ string TtoS(TokenType type){
         case TokenType::INTEGER: return "INTEGER";
         case TokenType::REAL: return "REAL";
         case TokenType::BOOLEAN : return "BOOLEAN";
+        case TokenType::ARRAY: return "ARRAY";
+        case TokenType::OF: return "OF";
         case TokenType::CHAR : return "CHAR";
         case TokenType::STRING : return "STRING";
         case TokenType::TRUE : return "TRUE";
@@ -46,6 +50,9 @@ string TtoS(TokenType type){
         case TokenType::PROCEDURE: return "PROCEDURE";
         case TokenType::BEGIN: return "BEGIN";
         case TokenType::END: return "END";
+        case TokenType::IF: return "IF";
+        case TokenType::THEN: return "THEN";
+        case TokenType::ELSE: return "ELSE";
         default: return "UNKNOWN";
     }
 }
@@ -63,7 +70,7 @@ string get_TokenType(TokenType type){
         case TokenType::NOT: return "NOT";
         case TokenType::XOR: return "XOR";
         case TokenType::GREATER_THAN: return ">";
-        case TokenType::EQUAL: return "==";
+        case TokenType::EQUAL: return "=";
         case TokenType::NOT_EQUAL: return "!=";
         case TokenType::LESS_THAN: return "<";
         case TokenType::LTE: return "<=";
@@ -71,6 +78,8 @@ string get_TokenType(TokenType type){
         case TokenType::END_OF_FILE: return "END_OF_FILE";
         case TokenType::LPAREN: return "LPAREN";
         case TokenType::RPAREN: return "RPAREN";
+        case TokenType::LBRACKET: return "LBRACKET";
+        case TokenType::RBRACKET: return "RBRACKET";
         case TokenType::DOT: return "DOT";
         case TokenType::ID: return "ID";
         case TokenType::ASSIGN: return "ASSIGN";
@@ -86,6 +95,8 @@ string get_TokenType(TokenType type){
         case TokenType::BOOLEAN: return "BOOLEAN";
         case TokenType::CHAR: return "CHAR";
         case TokenType::STRING: return "STRING";
+        case TokenType::ARRAY: return "ARRAY";
+        case TokenType::OF: return "OF";
         case TokenType::TRUE: return "TRUE";
         case TokenType::FALSE: return "FALSE";
         case TokenType::INT_DIV: return "INT_DIV";
@@ -93,6 +104,9 @@ string get_TokenType(TokenType type){
         case TokenType::PROCEDURE: return "PROCEDURE";
         case TokenType::BEGIN: return "BEGIN";
         case TokenType::END: return "END";
+        case TokenType::IF: return "IF";
+        case TokenType::THEN: return "THEN";
+        case TokenType::ELSE: return "ELSE";
         default: return "UNKNOWN";
     }
 }
@@ -110,6 +124,10 @@ TokenType StoR(string str){
         return TokenType::CHAR;
     } else if (str == "STRING"){
         return TokenType::STRING;
+    } else if (str == "ARRAY"){
+        return TokenType::ARRAY;
+    } else if (str == "OF"){
+        return TokenType::OF;
     } else if (str == "AND"){
         return TokenType::AND;
     } else if (str == "NOT"){
@@ -132,6 +150,12 @@ TokenType StoR(string str){
         return TokenType::BEGIN;
     } else if (str == "END"){
         return TokenType::END;
+    } else if (str == "IF"){
+        return TokenType::IF;
+    } else if (str == "THEN"){
+        return TokenType::THEN;
+    } else if (str == "ELSE"){
+        return TokenType::ELSE;
     } else {
         throw invalid_argument("Invalid string passed to 'StoR'");
     }

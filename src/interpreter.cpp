@@ -46,6 +46,8 @@ AST* Interpreter::visit(AST* node){
         return new Char(visitChar(character));
     } else if (auto str = dynamic_cast<String*>(node)){
         return new String(visitString(str));
+    } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
+        return visitIfStatement(if_statement);
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -87,7 +89,7 @@ Value* Interpreter::visitBinaryOp(BinaryOp* node){
     }
 }
 
-Num* Interpreter::visitNumBinaryOp(BinaryOp* node){
+Value* Interpreter::visitNumBinaryOp(BinaryOp* node){
     Num* left = dynamic_cast<Num*>(visit(node->left));
     Op* op = node->op;
     Num* right = dynamic_cast<Num*>(visit(node->right));
@@ -115,6 +117,25 @@ Num* Interpreter::visitNumBinaryOp(BinaryOp* node){
         int rightVal = static_cast<int>(right->value);
         result = static_cast<int>(leftVal / rightVal);
         return new Integer(result);
+    } else if (op->value == "="){
+        bool bool_result = left->value == right->value;
+        return new Boolean(bool_result);
+    } else if (op->value == "!="){
+        bool bool_result = left->value != right->value;
+        Boolean* node = new Boolean(bool_result);
+        return node;
+    } else if (op->value == "<"){
+        bool bool_result = left->value < right->value;
+        return new Boolean(bool_result);
+    } else if (op->value == ">"){
+        bool bool_result = left->value > right->value;
+        return new Boolean(bool_result);
+    } else if (op->value == "<="){
+        bool bool_result = left->value <= right->value;
+        return new Boolean(bool_result);
+    } else if (op->value == ">="){
+        bool bool_result = left->value >= right->value;
+        return new Boolean(bool_result);
     } else {
         throw invalid_argument("Invalid operator type for type 'Num'");
     }
@@ -137,7 +158,7 @@ Boolean* Interpreter::visitBoolBinaryOp(BinaryOp* node){
         result = left->value || right->value;
     } else if (op->value == "XOR") {
         result = left->value != right->value;
-    } else if (op->value == "=="){
+    } else if (op->value == "="){
         result = left->value == right->value;
     } else if (op->value == "!="){
         result = left->value != right->value;
@@ -302,6 +323,26 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     call_stack.records.push(procedure_ar);
     visit(node->procedure_symbol->block);
     call_stack.records.pop();
+    return new NoOp();
+}
+
+AST* Interpreter::visitIfStatement(IfStatement* node){
+    Boolean* conditional_node = dynamic_cast<Boolean*>(visit(node->conditional));
+    if (conditional_node == nullptr){
+        throw runtime_error("Boolean expected in conditional");
+    }
+    bool conditional = conditional_node->value;
+    if (conditional){
+        for (AST* child : node->then_statements){
+            visit(child);
+        }
+    } else {
+        for (AST* child : node->else_statements){
+            visit(child);
+        }
+
+    }
+
     return new NoOp();
 }
 

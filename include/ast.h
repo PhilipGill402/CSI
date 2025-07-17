@@ -26,6 +26,7 @@ public:
 class Num : public Value{
 public:
     double value;
+    bool isReal = false;
     Num(double);
     
     virtual ~Num() = default;
@@ -164,6 +165,15 @@ public:
     ProcedureSymbol* procedure_symbol;
 
     ProcedureCall(std::string, std::vector<AST*>&, Token);
+};
+
+class IfStatement : public AST{
+public:
+    AST* conditional;
+    std::vector<AST*> then_statements;
+    std::vector<AST*> else_statements;
+
+    IfStatement(AST*, std::vector<AST*>&, std::vector<AST*>&);
 };
 
 class NoOp : public AST{};

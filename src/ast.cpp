@@ -21,6 +21,7 @@ Var::Var(Token t): token(t){};
 Param::Param(Var* v, Type* t): var(v), type(t){};
 ProcedureDeclaration::ProcedureDeclaration(string n, vector<Param*>& p, Block* b): name(n), formal_params(p), block(b){};
 ProcedureCall::ProcedureCall(string n, vector<AST*>& p, Token t): name(n), given_params(p), token(t){};
+IfStatement::IfStatement(AST* c, vector<AST*>& t, vector<AST*>& e): conditional(c), then_statements(t), else_statements(e){};
 
 string Integer::toString() const {
     return to_string(static_cast<int>(value));

@@ -161,6 +161,16 @@ Token Lexer::get_next_token(){
                 }
                 advance();
                 return Token(TokenType::LESS_THAN, "<", currLineno, currColumn);
+            case '=':
+                advance();
+                return Token(TokenType::EQUAL, "=", currLineno, currColumn);
+            case '!':
+                advance();
+                if (current_char == '='){
+                    advance(); 
+                    return Token(TokenType::NOT_EQUAL, "!=", currLineno, currColumn);
+                }
+                error();
             case '\'':
                 advance();
                 return Token(TokenType::SINGLE_QUOTE, "'", currLineno, currColumn);

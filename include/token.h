@@ -23,6 +23,8 @@ enum TokenType{
     END_OF_FILE,
     LPAREN,
     RPAREN,
+    LBRACKET,
+    RBRACKET,
     DOT,
     ID,
     ASSIGN,
@@ -38,6 +40,8 @@ enum TokenType{
     BOOLEAN,
     CHAR,
     STRING,
+    ARRAY,
+    OF,
     TRUE,
     FALSE,
     INT_DIV,
@@ -45,6 +49,9 @@ enum TokenType{
     PROCEDURE,
     BEGIN,
     END,
+    IF,
+    THEN,
+    ELSE,
     UNKNOWN
 };
 

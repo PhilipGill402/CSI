@@ -1,6 +1,11 @@
 program Main;
-var a : string;
+var arr : integer;
+var a : integer;
 begin { Main }
-   a := "he" + "llo" + " " + "world";
+   arr := 10;
 
+   if arr >= 10 then
+      a := 1;
+   else
+      a := 0;
 end.  { Main }

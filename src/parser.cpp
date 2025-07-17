@@ -90,7 +90,6 @@ AST* Parser::factor(){
     } else if (current_token.type == TokenType::ID){
         return variable();
     } else if (current_token.type == TokenType::STRING_LITERAL){
-        cout << current_token.toString() << "\n";
         String* node = new String(current_token.value);
         eat(STRING_LITERAL);
         return node; 
@@ -154,10 +153,9 @@ AST* Parser::xor_expr(){
 AST* Parser::comparison(){
     AST* node = additive();
     while (current_token.type == EQUAL || current_token.type == NOT_EQUAL || current_token.type == GREATER_THAN || current_token.type == LESS_THAN || current_token.type == GTE || current_token.type == LTE){
-        cout << current_token.value << "\n";  
         Op* op = new Op(current_token.value); 
         if (current_token.type == EQUAL){
-            eat(EQUAL); 
+            eat(EQUAL);
         } else if (current_token.type == NOT_EQUAL){
             eat(NOT_EQUAL); 
         } else if (current_token.type == GREATER_THAN){
@@ -321,7 +319,7 @@ Type* Parser::type_spec(){
     return new Type(type);
 }
 
-AST* Parser::compound_statement(){
+Compound* Parser::compound_statement(){
     eat(BEGIN);
     vector<AST*> statementList = statement_list();
     eat(END);
@@ -352,6 +350,8 @@ AST* Parser::statement(){
         node = procedure_call_statement();
     } else if (current_token.type == ID) {
         node = assignment_statement();
+    } else if (current_token.type == IF){
+        node = if_statement();
     } else {
         //empty
         node = empty();
@@ -399,6 +399,28 @@ AST* Parser::procedure_call_statement(){
     ProcedureCall* procedure_call = new ProcedureCall(procedure_name, given_params, token);
 
     return procedure_call;
+}
+
+AST* Parser::if_statement(){
+    eat(IF);
+    AST* conditional;
+    AST* expression = expr();
+    if (auto bool_conditional = dynamic_cast<Boolean*>(expression)){
+        conditional = bool_conditional;
+    } else if (auto bin_op_conditional = dynamic_cast<BinaryOp*>(expression)){
+        conditional = bin_op_conditional;
+    } else{
+        throw runtime_error("Expected boolean value in conditional");
+    }
+    eat(THEN);
+    vector<AST*> then_statements = statement_list();
+    if (current_token.type == TokenType::ELSE){
+        eat(ELSE);
+        vector<AST*> else_statements = statement_list();
+        return new IfStatement(conditional, then_statements, else_statements);
+    }
+    vector<AST*> empty_statements = {};
+    return new IfStatement(conditional, then_statements, empty_statements);
 }
 
 AST* Parser::empty(){

@@ -33,12 +33,13 @@ public:
     std::vector<Param*> formal_parameters();
     std::vector<VarDecl*> variable_declarations();
     Type* type_spec();
-    AST* compound_statement();
+    Compound* compound_statement();
     std::vector<AST*> statement_list();
     AST* statement();
     AST* assignment_statement();
     AST* variable();
     AST* procedure_call_statement();
+    AST* if_statement();
     AST* empty();
     AST* parse();
 };

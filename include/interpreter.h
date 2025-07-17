@@ -19,7 +19,7 @@ public:
     char visitChar(Char*);
     std::string visitString(String*);
     Value* visitBinaryOp(BinaryOp*);
-    Num* visitNumBinaryOp(BinaryOp*);
+    Value* visitNumBinaryOp(BinaryOp*);
     Boolean* visitBoolBinaryOp(BinaryOp*);
     String* visitStringBinaryOp(BinaryOp*);
     Value* visitUnaryOp(UnaryOp*);
@@ -33,5 +33,6 @@ public:
     AST* visitType(Type*);
     AST* visitProcedureDeclaration(ProcedureDeclaration*);
     AST* visitProcedureCall(ProcedureCall*);
+    AST* visitIfStatement(IfStatement*);
     void interpret();
 };

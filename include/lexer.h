@@ -9,7 +9,7 @@
 
 class Lexer{
 public:
-    const std::vector<std::string> RESERVED_KEYWORDS = {"PROGRAM", "INTEGER", "REAL", "BOOLEAN", "CHAR", "STRING", "TRUE", "FALSE", "AND", "OR", "NOT", "XOR", "DIV", "VAR", "PROCEDURE", "BEGIN", "END"};
+    const std::vector<std::string> RESERVED_KEYWORDS = {"PROGRAM", "INTEGER", "REAL", "BOOLEAN", "CHAR", "STRING", "ARRAY", "OF", "TRUE", "FALSE", "AND", "OR", "NOT", "XOR", "DIV", "VAR", "PROCEDURE", "BEGIN", "END", "IF", "THEN", "ELSE"};
     std::string text;
     int pos;
     int lineno;

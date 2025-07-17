@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Symbol::Symbol(string n): name(n), type("None"){};
+Symbol::Symbol(string n): name(n), type(n){};
 Symbol::Symbol(string n, string t): name(n), type(t){};
 BuiltInSymbol::BuiltInSymbol(string n): Symbol(n){};
 VarSymbol::VarSymbol(string n, string t): Symbol(n, t){};
@@ -54,6 +54,7 @@ string ScopedSymbolTable::toString(){
 }
 
 void ScopedSymbolTable::add_builtins(){
+    define(new BuiltInSymbol("NUM")); 
     define(new BuiltInSymbol("INTEGER"));
     define(new BuiltInSymbol("REAL"));
     define(new BuiltInSymbol("BOOLEAN"));
@@ -110,6 +111,8 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         return visitString(string);
     } else if (auto num = dynamic_cast<Value*>(node)){
         throw runtime_error("Unrecognized type given"); 
+    } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
+        return visitIfStatement(if_statement);
     } else {
         throw runtime_error("unsupported node type in 'visit'.");
     }
@@ -152,8 +155,10 @@ Symbol* SemanticAnalyzer::visitVarDecl(VarDecl* node){
 Symbol* SemanticAnalyzer::visitAssign(Assign* node){
     Symbol* var_symbol = visit(node->left); 
     Symbol* given_symbol = visit(node->right);
-    if (var_symbol->type != given_symbol->name){
-        incorrect_type_error(var_symbol->type, given_symbol->name, var_symbol);
+    if ((var_symbol->type == "INTEGER" && given_symbol->name == "NUM") || (var_symbol->type == "REAL" && given_symbol->name == "NUM")){
+        return new EmptySymbol();
+    } else if (var_symbol->type != given_symbol->type){
+        incorrect_type_error(var_symbol->type, given_symbol->type, var_symbol);
     }
 
     return new EmptySymbol();
@@ -182,25 +187,28 @@ Symbol* SemanticAnalyzer::visitNoOp(NoOp* node){
 Symbol* SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
     Symbol* left = visit(node->left);
     Symbol* right = visit(node->right);
+    string op = node->op->value;
 
-    if (left->name == "INTEGER" && right->name == "INTEGER"){
-        if (node->op->value == "/"){
-            return new BuiltInSymbol("REAL");
-        } 
-        return new BuiltInSymbol("INTEGER");
-    } else if (left->name == "REAL" || right->name == "REAL"){
-        if (node->op->value == "DIV"){
-            return new BuiltInSymbol("INTEGER");
-        } 
-        return new BuiltInSymbol("REAL");
-    } else if (left->name == "BOOLEAN" && right->name == "BOOLEAN"){
+    if (left->type == "INTEGER" && right->type == "INTEGER"){
+        if (op == "=" || op == "!=" || op == ">" || op == ">=" || op == "<" || op == "<=" || op == "AND" || op == "OR"){
+            return new BuiltInSymbol("BOOLEAN");
+        }
+
+        return new BuiltInSymbol("NUM");
+    } else if (left->type == "REAL" || right->type == "REAL"){
+        if (op == "=" || op == "!=" || op == ">" || op == ">=" || op == "<" || op == "<=" || op == "AND" || op == "OR"){
+            return new BuiltInSymbol("BOOLEAN");
+        }
+        return new BuiltInSymbol("NUM");
+    } else if (left->type == "BOOLEAN" && right->type == "BOOLEAN"){
         return new BuiltInSymbol("BOOLEAN");
-    } else if (left->name == "CHAR" && right->name == "CHAR"){
+    } else if (left->type == "CHAR" && right->type == "CHAR"){
         return new BuiltInSymbol("CHAR");
-    } else if (left->name == "STRING" && right->name == "STRING"){
+    } else if (left->type == "STRING" && right->type == "STRING"){
         return new BuiltInSymbol("STRING");
     } else {
-        incorrect_type_error(left->name, right->name, left);
+
+        incorrect_type_error(left->type, right->type , left);
         throw new runtime_error("Incorrect Type Error");
     }
 }
@@ -250,8 +258,8 @@ Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
         error(ErrorCode::ID_NOT_FOUND, node->token);
     }
     node->procedure_symbol = procedure_symbol;
-    int actual_size = size(procedure_symbol->params);
-    int given_size = size(node->given_params);
+    int actual_size = procedure_symbol->params.size();
+    int given_size = node->given_params.size();
 
     if (actual_size != given_size){
         error(ErrorCode::INCORRECT_NUMBER_OF_ARGUMENTS, node->token);
@@ -282,4 +290,21 @@ Symbol* SemanticAnalyzer::visitChar(Char* node){
 
 Symbol* SemanticAnalyzer::visitString(String* node){
     return new BuiltInSymbol("STRING");
+}
+
+Symbol* SemanticAnalyzer::visitIfStatement(IfStatement* node){
+    Symbol* conditional_var = visit(node->conditional);
+    if (conditional_var->type != "BOOLEAN"){
+        throw runtime_error("Expected a 'BOOLEAN' conditional"); 
+    }
+
+    for (AST* child : node->then_statements){
+        visit(child);
+    }
+
+    for (AST* child : node->else_statements){
+        visit(child);
+    }
+
+    return new EmptySymbol();
 }
