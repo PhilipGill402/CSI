@@ -413,14 +413,35 @@ AST* Parser::if_statement(){
         throw runtime_error("Expected boolean value in conditional");
     }
     eat(THEN);
-    vector<AST*> then_statements = statement_list();
+
+    AST* if_statement;
+    if (current_token.type == TokenType::BEGIN){
+        if_statement = compound_statement();
+    } else {
+        if_statement = statement(); 
+    }
+    
+    AST* else_statement;
     if (current_token.type == TokenType::ELSE){
         eat(ELSE);
-        vector<AST*> else_statements = statement_list();
-        return new IfStatement(conditional, then_statements, else_statements);
+        else_statement = if_statement_tail(); 
+    } else {
+        else_statement = empty();
     }
-    vector<AST*> empty_statements = {};
-    return new IfStatement(conditional, then_statements, empty_statements);
+    
+    return new IfStatement(conditional, if_statement, else_statement);
+}
+
+AST* Parser::if_statement_tail(){
+    if (current_token.type == TokenType::IF){
+        return if_statement();
+    } else {
+        if (current_token.type == TokenType::BEGIN){
+            return compound_statement();
+        } else {
+            return statement();
+        }
+    }
 }
 
 AST* Parser::empty(){

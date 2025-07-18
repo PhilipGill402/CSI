@@ -40,6 +40,7 @@ public:
     AST* variable();
     AST* procedure_call_statement();
     AST* if_statement();
+    AST* if_statement_tail();
     AST* empty();
     AST* parse();
 };

@@ -298,13 +298,8 @@ Symbol* SemanticAnalyzer::visitIfStatement(IfStatement* node){
         throw runtime_error("Expected a 'BOOLEAN' conditional"); 
     }
 
-    for (AST* child : node->then_statements){
-        visit(child);
-    }
-
-    for (AST* child : node->else_statements){
-        visit(child);
-    }
+    visit(node->if_statement);
+    visit(node->else_statement);
 
     return new EmptySymbol();
 }

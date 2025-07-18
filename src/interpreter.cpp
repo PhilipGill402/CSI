@@ -333,14 +333,9 @@ AST* Interpreter::visitIfStatement(IfStatement* node){
     }
     bool conditional = conditional_node->value;
     if (conditional){
-        for (AST* child : node->then_statements){
-            visit(child);
-        }
+        visit(node->if_statement); 
     } else {
-        for (AST* child : node->else_statements){
-            visit(child);
-        }
-
+        visit(node->else_statement);
     }
 
     return new NoOp();

@@ -170,10 +170,10 @@ public:
 class IfStatement : public AST{
 public:
     AST* conditional;
-    std::vector<AST*> then_statements;
-    std::vector<AST*> else_statements;
+    AST* if_statement;
+    AST* else_statement;
 
-    IfStatement(AST*, std::vector<AST*>&, std::vector<AST*>&);
+    IfStatement(AST*, AST*, AST*); 
 };
 
 class NoOp : public AST{};
