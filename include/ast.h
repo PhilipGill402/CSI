@@ -184,4 +184,13 @@ public:
     WhileLoop(AST*, AST*);
 };
 
+class ForLoop : public AST{
+public:
+    Assign* assignment;
+    Integer* target;
+    Integer* increment;
+    AST* statement;
+
+    ForLoop(Assign*, Integer*, Integer*, AST*);
+};
 class NoOp : public AST{};

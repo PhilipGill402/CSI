@@ -36,12 +36,13 @@ public:
     Compound* compound_statement();
     std::vector<AST*> statement_list();
     AST* statement();
-    AST* assignment_statement();
+    Assign* assignment_statement();
     AST* variable();
     AST* procedure_call_statement();
     AST* if_statement();
     AST* if_statement_tail();
     AST* while_loop();
+    AST* for_loop();
     AST* empty();
     AST* parse();
 };

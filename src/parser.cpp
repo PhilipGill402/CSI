@@ -352,6 +352,8 @@ AST* Parser::statement(){
         node = if_statement();
     } else if (current_token.type == WHILE){
         node = while_loop();
+    } else if (current_token.type == FOR){
+        node = for_loop();
     } else {
         //empty
         node = empty();
@@ -360,7 +362,7 @@ AST* Parser::statement(){
     return node;
 }
 
-AST* Parser::assignment_statement(){
+Assign* Parser::assignment_statement(){
     AST* left = variable(); 
     Token token = current_token;
     eat(ASSIGN);
@@ -465,6 +467,32 @@ AST* Parser::while_loop(){
     }
 
     return new WhileLoop(conditional, loop_statement);
+}
+
+AST* Parser::for_loop(){
+    eat(FOR);
+    Assign* assignment = assignment_statement();
+    Integer* increment;
+    if (current_token.type == TokenType::TO){
+        eat(TO);
+        increment = new Integer(1); 
+    } else if (current_token.type == TokenType::DOWNTO){
+        eat(DOWNTO);
+        increment = new Integer(-1);
+    } else {
+        throw std::runtime_error("Expected token 'TO' or 'DOWNTO' but instead received " + current_token.toString());
+    }
+    Integer* target = new Integer(std::stoi(current_token.value));
+    eat(ID);
+    eat(DO);
+    AST* statements;
+    if (current_token.type == TokenType::BEGIN){
+        statements = compound_statement(); 
+    } else {
+        statements = statement();
+    }
+
+    return new ForLoop(assignment, target, increment, statements);
 }
 
 AST* Parser::empty(){

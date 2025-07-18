@@ -54,6 +54,9 @@ enum TokenType{
     ELSE,
     WHILE,
     DO,
+    FOR,
+    TO,
+    DOWNTO,
     UNKNOWN
 };
 

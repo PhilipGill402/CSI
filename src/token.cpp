@@ -53,6 +53,9 @@ std::string TtoS(TokenType type){
         case TokenType::ELSE: return "ELSE";
         case TokenType::WHILE: return "WHILE";
         case TokenType::DO: return "DO";
+        case TokenType::FOR: return "FOR";
+        case TokenType::TO: return "TO";
+        case TokenType::DOWNTO: return "DOWNTO";
         default: return "UNKNOWN";
     }
 }
@@ -109,6 +112,9 @@ std::string get_TokenType(TokenType type){
         case TokenType::ELSE: return "ELSE";
         case TokenType::WHILE: return "WHILE";
         case TokenType::DO: return "DO";
+        case TokenType::FOR: return "FOR";
+        case TokenType::TO: return "TO";
+        case TokenType::DOWNTO: return "DOWNTO";
         default: return "UNKNOWN";
     }
 }
@@ -162,6 +168,12 @@ TokenType StoR(std::string str){
         return TokenType::WHILE;
     } else if (str == "DO"){
         return TokenType::DO;
+    } else if (str == "FOR"){
+        return TokenType::FOR;
+    } else if (str == "TO"){
+        return TokenType::TO;
+    } else if (str == "DOWNTO"){
+        return TokenType::DOWNTO;
     } else {
         throw std::invalid_argument("Invalid string passed to 'StoR'");
     }
