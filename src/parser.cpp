@@ -350,6 +350,8 @@ AST* Parser::statement(){
         node = assignment_statement();
     } else if (current_token.type == IF){
         node = if_statement();
+    } else if (current_token.type == WHILE){
+        node = while_loop();
     } else {
         //empty
         node = empty();
@@ -440,6 +442,29 @@ AST* Parser::if_statement_tail(){
             return statement();
         }
     }
+}
+
+AST* Parser::while_loop(){
+    eat(WHILE);
+    AST* conditional;
+    AST* expression = expr();
+    if (auto bool_conditional = dynamic_cast<Boolean*>(expression)){
+        conditional = bool_conditional;
+    } else if (auto bin_op_conditional = dynamic_cast<BinaryOp*>(expression)){
+        conditional = bin_op_conditional;
+    } else{
+        throw std::runtime_error("Expected boolean value in conditional");
+    }
+
+    eat(DO);
+    AST* loop_statement;
+    if (current_token.type == TokenType::BEGIN){
+        loop_statement = compound_statement();
+    } else {
+        loop_statement = statement(); 
+    }
+
+    return new WhileLoop(conditional, loop_statement);
 }
 
 AST* Parser::empty(){

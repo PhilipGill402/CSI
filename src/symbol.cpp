@@ -111,6 +111,8 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         throw std::runtime_error("Unrecognized type given"); 
     } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
         return visitIfStatement(if_statement);
+    } else if (auto while_loop = dynamic_cast<WhileLoop*>(node)){
+        return visitWhileLoop(while_loop);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -298,6 +300,17 @@ Symbol* SemanticAnalyzer::visitIfStatement(IfStatement* node){
 
     visit(node->if_statement);
     visit(node->else_statement);
+
+    return new EmptySymbol();
+}
+
+Symbol* SemanticAnalyzer::visitWhileLoop(WhileLoop* node){
+    Symbol* conditional_var = visit(node->conditional);
+    if (conditional_var->type != "BOOLEAN"){
+        throw std::runtime_error("Expected a 'BOOLEAN' conditional");
+    }
+
+    visit(node->statement);
 
     return new EmptySymbol();
 }

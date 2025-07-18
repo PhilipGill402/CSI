@@ -46,6 +46,8 @@ AST* Interpreter::visit(AST* node){
         return new String(visitString(str));
     } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
         return visitIfStatement(if_statement);
+    } else if (auto while_loop = dynamic_cast<WhileLoop*>(node)){
+        return visitWhileLoop(while_loop);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -337,6 +339,24 @@ AST* Interpreter::visitIfStatement(IfStatement* node){
     }
 
     return new NoOp();
+}
+
+AST* Interpreter::visitWhileLoop(WhileLoop* node){
+    Boolean* conditional_node = dynamic_cast<Boolean*>(visit(node->conditional));
+    if (conditional_node == nullptr){
+        throw std::runtime_error("Boolean expected in conditional");
+    }
+    bool conditional = conditional_node->value;
+    while (conditional){
+        visit(node->statement);
+        conditional_node = dynamic_cast<Boolean*>(visit(node->conditional));
+        if (conditional_node == nullptr){
+            throw std::runtime_error("Boolean expected in conditional");
+        }
+        conditional = conditional_node->value;
+    }
+
+    return new NoOp(); 
 }
 
 void Interpreter::interpret(){

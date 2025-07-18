@@ -51,6 +51,8 @@ std::string TtoS(TokenType type){
         case TokenType::IF: return "IF";
         case TokenType::THEN: return "THEN";
         case TokenType::ELSE: return "ELSE";
+        case TokenType::WHILE: return "WHILE";
+        case TokenType::DO: return "DO";
         default: return "UNKNOWN";
     }
 }
@@ -105,6 +107,8 @@ std::string get_TokenType(TokenType type){
         case TokenType::IF: return "IF";
         case TokenType::THEN: return "THEN";
         case TokenType::ELSE: return "ELSE";
+        case TokenType::WHILE: return "WHILE";
+        case TokenType::DO: return "DO";
         default: return "UNKNOWN";
     }
 }
@@ -154,6 +158,10 @@ TokenType StoR(std::string str){
         return TokenType::THEN;
     } else if (str == "ELSE"){
         return TokenType::ELSE;
+    } else if (str == "WHILE"){
+        return TokenType::WHILE;
+    } else if (str == "DO"){
+        return TokenType::DO;
     } else {
         throw std::invalid_argument("Invalid string passed to 'StoR'");
     }

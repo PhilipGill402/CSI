@@ -176,4 +176,12 @@ public:
     IfStatement(AST*, AST*, AST*); 
 };
 
+class WhileLoop : public AST{
+public:
+    AST* conditional;
+    AST* statement;
+
+    WhileLoop(AST*, AST*);
+};
+
 class NoOp : public AST{};

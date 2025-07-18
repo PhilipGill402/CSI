@@ -52,6 +52,8 @@ enum TokenType{
     IF,
     THEN,
     ELSE,
+    WHILE,
+    DO,
     UNKNOWN
 };
 
