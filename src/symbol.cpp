@@ -1,49 +1,47 @@
 #include "symbol.h"
 
-using namespace std;
-
-Symbol::Symbol(string n): name(n), type(n){};
-Symbol::Symbol(string n, string t): name(n), type(t){};
-BuiltInSymbol::BuiltInSymbol(string n): Symbol(n){};
-VarSymbol::VarSymbol(string n, string t): Symbol(n, t){};
-ProcedureSymbol::ProcedureSymbol(string n): Symbol(n){};
+Symbol::Symbol(std::string n): name(n), type(n){};
+Symbol::Symbol(std::string n, std::string t): name(n), type(t){};
+BuiltInSymbol::BuiltInSymbol(std::string n): Symbol(n){};
+VarSymbol::VarSymbol(std::string n, std::string t): Symbol(n, t){};
+ProcedureSymbol::ProcedureSymbol(std::string n): Symbol(n){};
 EmptySymbol::EmptySymbol():Symbol("NONE"){};
 
-string Symbol::toString(){
-    string str = "<";
+std::string Symbol::toString(){
+    std::string str = "<";
     str += name + ", " + type + ">";
 
     return str;
 }
 
-ScopedSymbolTable::ScopedSymbolTable(string n, int l): name(n), level(l), enclosing_scope(nullptr){
+ScopedSymbolTable::ScopedSymbolTable(std::string n, int l): name(n), level(l), enclosing_scope(nullptr){
     if (level == 0){
         add_builtins();
     }
 
 };
 
-ScopedSymbolTable::ScopedSymbolTable(string n, int l, ScopedSymbolTable* s): name(n), level(l), enclosing_scope(s){};
+ScopedSymbolTable::ScopedSymbolTable(std::string n, int l, ScopedSymbolTable* s): name(n), level(l), enclosing_scope(s){};
 
 void ScopedSymbolTable::define(Symbol* symbol){
     symbol_dict[symbol->name] = symbol;
 }
 
-Symbol* ScopedSymbolTable::lookup(string name){
+Symbol* ScopedSymbolTable::lookup(std::string name){
     if (symbol_dict.count(name) > 0){
         return symbol_dict.at(name);
     }
     if (enclosing_scope != nullptr){
         return enclosing_scope->lookup(name);
     } else {
-        throw runtime_error("Symbol '" + name + "' not found.");
+        throw std::runtime_error("Symbol '" + name + "' not found.");
     }
 
 }
 
-string ScopedSymbolTable::toString(){
-    string str = "Name: " + name + "\n";
-    str += "Level: " + to_string(level) + "\n";
+std::string ScopedSymbolTable::toString(){
+    std::string str = "Name: " + name + "\n";
+    str += "Level: " + std::to_string(level) + "\n";
     str += "Enclosing Scope: " + enclosing_scope->name + "\n";
 
     for (auto entry : symbol_dict){
@@ -63,18 +61,18 @@ void ScopedSymbolTable::add_builtins(){
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
-    cerr << EtoS(error_code) << " -> " << token.toString() << "\n";
+    std::cerr << EtoS(error_code) << " -> " << token.toString() << "\n";
     abort();
 }
 
-void SemanticAnalyzer::incorrect_type_error(string expected, string received, Symbol* symbol){
-    cerr << "Expected type of: " + expected + " for symbol " + symbol->toString() + " Received type of: " + received + "\n";
+void SemanticAnalyzer::incorrect_type_error(std::string expected, std::string received, Symbol* symbol){
+    std::cerr << "Expected type of: " + expected + " for symbol " + symbol->toString() + " Received type of: " + received + "\n";
     abort();
 }
 
 Symbol* SemanticAnalyzer::visit(AST* node){
     if (node == nullptr){
-        throw runtime_error("visit() received a nullptr");
+        throw std::runtime_error("visit() received a nullptr");
     }
     
     if (auto binOp = dynamic_cast<BinaryOp*>(node)){
@@ -110,11 +108,11 @@ Symbol* SemanticAnalyzer::visit(AST* node){
     } else if (auto string = dynamic_cast<String*>(node)){
         return visitString(string);
     } else if (auto num = dynamic_cast<Value*>(node)){
-        throw runtime_error("Unrecognized type given"); 
+        throw std::runtime_error("Unrecognized type given"); 
     } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
         return visitIfStatement(if_statement);
     } else {
-        throw runtime_error("unsupported node type in 'visit'.");
+        throw std::runtime_error("unsupported node type in 'visit'.");
     }
 }
 
@@ -122,7 +120,7 @@ Symbol* SemanticAnalyzer::visitProgram(Program* node){
     ScopedSymbolTable* global_scope = new ScopedSymbolTable("Global", 1, current_scope);
     current_scope = global_scope;
     visit(node->block);
-    cout << current_scope->toString() << "\n";
+    std::cout << current_scope->toString() << "\n";
     current_scope = current_scope->enclosing_scope;
 
     return new EmptySymbol();
@@ -139,8 +137,8 @@ Symbol* SemanticAnalyzer::visitBlock(Block* node){
 
 Symbol* SemanticAnalyzer::visitVarDecl(VarDecl* node){
     Token var_token = node->var->token;
-    string var_name = var_token.value;
-    string var_type = TtoS(node->type->type);
+    std::string var_name = var_token.value;
+    std::string var_type = TtoS(node->type->type);
     VarSymbol* symbol = new VarSymbol(var_name, var_type);
 
     if (current_scope->symbol_dict.count(var_name) > 0){
@@ -166,7 +164,7 @@ Symbol* SemanticAnalyzer::visitAssign(Assign* node){
 
 Symbol* SemanticAnalyzer::visitVar(Var* node){
     Token token = node->token;
-    string name = token.value;
+    std::string name = token.value;
 
     Symbol* symbol = current_scope->lookup(name); 
     if (!symbol){
@@ -187,7 +185,7 @@ Symbol* SemanticAnalyzer::visitNoOp(NoOp* node){
 Symbol* SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
     Symbol* left = visit(node->left);
     Symbol* right = visit(node->right);
-    string op = node->op->value;
+    std::string op = node->op->value;
 
     if (left->type == "INTEGER" && right->type == "INTEGER"){
         if (op == "=" || op == "!=" || op == ">" || op == ">=" || op == "<" || op == "<=" || op == "AND" || op == "OR"){
@@ -209,7 +207,7 @@ Symbol* SemanticAnalyzer::visitBinaryOp(BinaryOp* node){
     } else {
 
         incorrect_type_error(left->type, right->type , left);
-        throw new runtime_error("Incorrect Type Error");
+        throw std::runtime_error("Incorrect Type Error");
     }
 }
 
@@ -228,7 +226,7 @@ Symbol* SemanticAnalyzer::visitCompound(Compound* node){
 }
 
 Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
-    string procedure_name = node->name;
+    std::string procedure_name = node->name;
     ProcedureSymbol* procedure_symbol = new ProcedureSymbol(procedure_name);
     current_scope->define(procedure_symbol);
 
@@ -238,8 +236,8 @@ Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
 
     for (Param* param : node->formal_params){
         Token token = param->var->token;
-        string param_name = token.value;
-        string param_type = TtoS(param->type->type);
+        std::string param_name = token.value;
+        std::string param_type = TtoS(param->type->type);
         Symbol* symbol = new VarSymbol(param_name, param_type);
         current_scope->define(symbol);
         procedure_symbol->params.push_back(param);
@@ -252,7 +250,7 @@ Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
 }
 
 Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
-    string procedure_name = node->name;
+    std::string procedure_name = node->name;
     ProcedureSymbol* procedure_symbol = dynamic_cast<ProcedureSymbol*>(current_scope->lookup(procedure_name));
     if (procedure_symbol == nullptr){
         error(ErrorCode::ID_NOT_FOUND, node->token);
@@ -295,7 +293,7 @@ Symbol* SemanticAnalyzer::visitString(String* node){
 Symbol* SemanticAnalyzer::visitIfStatement(IfStatement* node){
     Symbol* conditional_var = visit(node->conditional);
     if (conditional_var->type != "BOOLEAN"){
-        throw runtime_error("Expected a 'BOOLEAN' conditional"); 
+        throw std::runtime_error("Expected a 'BOOLEAN' conditional"); 
     }
 
     visit(node->if_statement);

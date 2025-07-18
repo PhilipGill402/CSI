@@ -1,13 +1,11 @@
 #include "parser.h"
 #include <interpreter.h>
 
-using namespace std;
-
 Parser::Parser(Lexer& l) : lexer(l), current_token(lexer.get_next_token()) {}
 
 void Parser::error(ErrorCode error_code, TokenType expected_token_type, Token received_token){
-    string msg = EtoS(error_code) + " -> " "Expected: " + TtoS(expected_token_type) + " Received: " + received_token.toString(); 
-    cerr << msg << "\n";
+    std::string msg = EtoS(error_code) + " -> " "Expected: " + TtoS(expected_token_type) + " Received: " + received_token.toString(); 
+    std::cerr << msg << "\n";
     abort();
 }
 
@@ -94,7 +92,7 @@ AST* Parser::factor(){
         eat(STRING_LITERAL);
         return node; 
     } else {
-        throw runtime_error("Unexpected token in factor(): " + current_token.value);
+        throw std::runtime_error("Unexpected token in factor(): " + current_token.value);
     }
 }
 
@@ -192,7 +190,7 @@ AST* Parser::additive(){
 
 AST* Parser::program(){
     eat(PROGRAM);
-    string program_name = current_token.value;
+    std::string program_name = current_token.value;
     eat(ID); 
     eat(SEMI);
     Block* block_node = dynamic_cast<Block*>(block()); 
@@ -203,7 +201,7 @@ AST* Parser::program(){
 }
 
 Block* Parser::block(){
-    vector<AST*> decls = declarations();
+    std::vector<AST*> decls = declarations();
     Compound* compound = dynamic_cast<Compound*>(compound_statement());
 
     Block* node = new Block(decls, compound);
@@ -211,21 +209,21 @@ Block* Parser::block(){
     return node;
 }
 
-vector<AST*> Parser::declarations(){
-    vector<AST*> decls = {};
+std::vector<AST*> Parser::declarations(){
+    std::vector<AST*> decls = {};
     while (current_token.type == TokenType::VAR){
         eat(VAR);
         do
         {
-            vector<VarDecl*> nodes = variable_declarations(); 
+            std::vector<VarDecl*> nodes = variable_declarations(); 
             decls.insert(decls.end(), nodes.begin(), nodes.end());
             eat(SEMI);
         } while (current_token.type == TokenType::ID);
     } 
     while (current_token.type == TokenType::PROCEDURE){
         eat(PROCEDURE);
-        vector<Param*> formal_params;
-        string procedure_name = current_token.value;
+        std::vector<Param*> formal_params;
+        std::string procedure_name = current_token.value;
         eat(ID);
         if (current_token.type == TokenType::LPAREN){
             eat(LPAREN); 
@@ -242,19 +240,19 @@ vector<AST*> Parser::declarations(){
     return decls;
 }
 
-vector<Param*> Parser::formal_parameter_list(){
-    vector<Param*> parameters = formal_parameters();
+std::vector<Param*> Parser::formal_parameter_list(){
+    std::vector<Param*> parameters = formal_parameters();
     if (current_token.type == TokenType::SEMI){
         eat(SEMI);
-        vector<Param*> new_parameters = formal_parameter_list();
+        std::vector<Param*> new_parameters = formal_parameter_list();
         parameters.insert(parameters.end(), new_parameters.begin(), new_parameters.end());
     }
 
     return parameters;
 }
 
-vector<Param*> Parser::formal_parameters(){
-    vector<Token> tokens = {current_token};
+std::vector<Param*> Parser::formal_parameters(){
+    std::vector<Token> tokens = {current_token};
     eat(ID);
     while(current_token.type == TokenType::COMMA){
         eat(COMMA);
@@ -264,7 +262,7 @@ vector<Param*> Parser::formal_parameters(){
     eat(COLON);
     Type* type = type_spec();
 
-    vector<Param*> formal_params;
+    std::vector<Param*> formal_params;
     formal_params.reserve(tokens.size());
     
     for (Token token : tokens){
@@ -276,8 +274,8 @@ vector<Param*> Parser::formal_parameters(){
     return formal_params;
 }
 
-vector<VarDecl*> Parser::variable_declarations(){
-    vector<Var*> var_nodes = {new Var(current_token)};
+std::vector<VarDecl*> Parser::variable_declarations(){
+    std::vector<Var*> var_nodes = {new Var(current_token)};
     eat(ID);
     while (current_token.type == TokenType::COMMA){
         eat(COMMA);
@@ -287,7 +285,7 @@ vector<VarDecl*> Parser::variable_declarations(){
     eat(COLON);
     Type* type = type_spec();
 
-    vector<VarDecl*> var_decl_nodes = {};
+    std::vector<VarDecl*> var_decl_nodes = {};
     for (Var* node : var_nodes){
         var_decl_nodes.push_back(new VarDecl(node, type));
     }
@@ -313,7 +311,7 @@ Type* Parser::type_spec(){
         type = TokenType::STRING;
         eat(STRING);
     } else {
-        throw runtime_error("Unrecognized type in type_spec()");
+        throw std::runtime_error("Unrecognized type in type_spec()");
     }
 
     return new Type(type);
@@ -321,16 +319,16 @@ Type* Parser::type_spec(){
 
 Compound* Parser::compound_statement(){
     eat(BEGIN);
-    vector<AST*> statementList = statement_list();
+    std::vector<AST*> statementList = statement_list();
     eat(END);
     Compound* node = new Compound(statementList);
 
     return node;
 }
 
-vector<AST*> Parser::statement_list(){
+std::vector<AST*> Parser::statement_list(){
     AST* node = statement();
-    vector<AST*> children = {node};
+    std::vector<AST*> children = {node};
 
     while (current_token.type == TokenType::SEMI){
         eat(SEMI);
@@ -378,8 +376,8 @@ AST* Parser::variable(){
 
 AST* Parser::procedure_call_statement(){
     Token token = current_token;
-    string procedure_name = token.value;
-    vector<AST*> given_params;
+    std::string procedure_name = token.value;
+    std::vector<AST*> given_params;
     eat(ID);
     eat(LPAREN);
     
@@ -410,7 +408,7 @@ AST* Parser::if_statement(){
     } else if (auto bin_op_conditional = dynamic_cast<BinaryOp*>(expression)){
         conditional = bin_op_conditional;
     } else{
-        throw runtime_error("Expected boolean value in conditional");
+        throw std::runtime_error("Expected boolean value in conditional");
     }
     eat(THEN);
 

@@ -1,7 +1,5 @@
 #include "interpreter.h"
 
-using namespace std;
-
 Interpreter::Interpreter(AST* t): tree(t){};
 
 bool isReal(Value* node){
@@ -10,7 +8,7 @@ bool isReal(Value* node){
 
 AST* Interpreter::visit(AST* node){
     if (node == nullptr){
-        throw runtime_error("visit() received a nullptr");
+        throw std::runtime_error("visit() received a nullptr");
     }
     if (auto num = dynamic_cast<Integer*>(node)){
         return new Integer(visitInteger(num));
@@ -49,7 +47,7 @@ AST* Interpreter::visit(AST* node){
     } else if (auto if_statement = dynamic_cast<IfStatement*>(node)){
         return visitIfStatement(if_statement);
     } else {
-        throw runtime_error("unsupported node type in 'visit'.");
+        throw std::runtime_error("unsupported node type in 'visit'.");
     }
 }
 
@@ -69,13 +67,13 @@ char Interpreter::visitChar(Char* node){
     return node->value;
 }
 
-string Interpreter::visitString(String* node){
+std::string Interpreter::visitString(String* node){
     return node->value;
 }
 
 Value* Interpreter::visitBinaryOp(BinaryOp* node){
     if (!node->left || !node->right) {
-        throw runtime_error("BinaryOp has null left or right child");
+        throw std::runtime_error("BinaryOp has null left or right child");
     }
 
     if (dynamic_cast<Num*>(visit(node->left)) && dynamic_cast<Num*>(visit(node->right))){
@@ -85,7 +83,7 @@ Value* Interpreter::visitBinaryOp(BinaryOp* node){
     } else if (dynamic_cast<String*>(visit(node->left)) && dynamic_cast<String*>(visit(node->right))){
         return visitStringBinaryOp(node);
     } else {
-        throw runtime_error("Unsupported type in 'visitBinaryOp'");
+        throw std::runtime_error("Unsupported type in 'visitBinaryOp'");
     }
 }
 
@@ -95,7 +93,7 @@ Value* Interpreter::visitNumBinaryOp(BinaryOp* node){
     Num* right = dynamic_cast<Num*>(visit(node->right));
 
     if (left == nullptr || right == nullptr){
-        throw runtime_error("Either left or right needs to be of type Num* in visitBinaryOp()");
+        throw std::runtime_error("Either left or right needs to be of type Num* in visitBinaryOp()");
     }
 
     bool isLeftReal = isReal(left);
@@ -137,7 +135,7 @@ Value* Interpreter::visitNumBinaryOp(BinaryOp* node){
         bool bool_result = left->value >= right->value;
         return new Boolean(bool_result);
     } else {
-        throw invalid_argument("Invalid operator type for type 'Num'");
+        throw std::invalid_argument("Invalid operator type for type 'Num'");
     }
 
     if (isLeftReal || isRightReal){
@@ -171,7 +169,7 @@ Boolean* Interpreter::visitBoolBinaryOp(BinaryOp* node){
     } else if (op->value == ">="){
         result = left->value >= right->value;
     } else {
-        throw invalid_argument("Invalid operator type for type 'Boolean'");
+        throw std::invalid_argument("Invalid operator type for type 'Boolean'");
     }
 
 
@@ -182,12 +180,12 @@ String* Interpreter::visitStringBinaryOp(BinaryOp* node){
     String* left = dynamic_cast<String*>(visit(node->left));
     Op* op = node->op;
     String* right = dynamic_cast<String*>(visit(node->right));
-    string result;
+    std::string result;
 
     if (op->value == "+"){
         result = left->value + right->value;
     } else {
-        throw invalid_argument("Invalid operator type for type 'String'");
+        throw std::invalid_argument("Invalid operator type for type 'String'");
     }
 
     return new String(result);
@@ -195,13 +193,13 @@ String* Interpreter::visitStringBinaryOp(BinaryOp* node){
 
 Value* Interpreter::visitUnaryOp(UnaryOp* node){
     if (!node->expr || !node->op){
-        throw runtime_error("Null argument given to visitUnaryOp()");
+        throw std::runtime_error("Null argument given to visitUnaryOp()");
     }
 
     Op* op = node->op;
     Num* newNode = dynamic_cast<Num*>(visit(node->expr));
     if (newNode == nullptr){
-        throw runtime_error("Non Num expression passed into UnaryOp");
+        throw std::runtime_error("Non Num expression passed into UnaryOp");
     }    
 
     if (op->value == "+"){
@@ -230,19 +228,19 @@ Value* Interpreter::visitUnaryOp(UnaryOp* node){
         return new Boolean(!original);
 
     } else {
-        throw runtime_error("Received unsupported unary operation type");
+        throw std::runtime_error("Received unsupported unary operation type");
     }
     
     
 }
 
 AST* Interpreter::visitProgram(Program* node){
-    string program_name = node->program_name;
+    std::string program_name = node->program_name;
     ActivationRecord program_ar = ActivationRecord(program_name, ARType::AR_PROGRAM, 1);
     call_stack.records.push(program_ar);
     AST* new_node = visit(node->block);
     ActivationRecord ar = call_stack.records.top();
-    cout << ar.toString();
+    std::cout << ar.toString();
     call_stack.records.pop();
     return new_node;
 }
@@ -258,13 +256,13 @@ AST* Interpreter::visitCompound(Compound* node){
 AST* Interpreter::visitAssign(Assign* node){
     Var* var = dynamic_cast<Var*>(node->left);
     if (var == nullptr){
-        throw runtime_error("Invalid AST* node given to the left of the Assign node");
+        throw std::runtime_error("Invalid AST* node given to the left of the Assign node");
     }
     Token token = var->token;
-    string var_name = token.value;
+    std::string var_name = token.value;
     Value* var_value = dynamic_cast<Value*>(visit(node->right));
     if (var_value == nullptr){
-        throw runtime_error("Invalid AST* node given to the right of the Assign node");
+        throw std::runtime_error("Invalid AST* node given to the right of the Assign node");
     }
     call_stack.records.top().members[var_name] = var_value;
 
@@ -273,7 +271,7 @@ AST* Interpreter::visitAssign(Assign* node){
 
 AST* Interpreter::visitVar(Var* node){
     Token token = node->token;
-    string var_name = token.value;
+    std::string var_name = token.value;
     Value* var = call_stack.records.top().members.at(var_name);
     return var;
 }
@@ -305,17 +303,17 @@ AST* Interpreter::visitProcedureDeclaration(ProcedureDeclaration* node){
 }
 
 AST* Interpreter::visitProcedureCall(ProcedureCall* node){
-    string procedure_name = node->name;
+    std::string procedure_name = node->name;
     int level = call_stack.records.top().level + 1;
     ActivationRecord procedure_ar = ActivationRecord(procedure_name, ARType::AR_PROCEDURE, level);
-    vector<Param*> formal_arguments = node->procedure_symbol->params;
-    vector<AST*> given_arguments = node->given_params;
+    std::vector<Param*> formal_arguments = node->procedure_symbol->params;
+    std::vector<AST*> given_arguments = node->given_params;
 
     for (int idx = 0; idx < given_arguments.size(); idx++){
-        string name = formal_arguments[idx]->var->token.value;
+        std::string name = formal_arguments[idx]->var->token.value;
         Num* value = dynamic_cast<Num*>(visit(given_arguments[idx]));
         if (value == nullptr){
-            throw runtime_error("Given argument couldn't be converted to type Num*");
+            throw std::runtime_error("Given argument couldn't be converted to type Num*");
         }
         procedure_ar.members[name] = value;
     }
@@ -329,7 +327,7 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
 AST* Interpreter::visitIfStatement(IfStatement* node){
     Boolean* conditional_node = dynamic_cast<Boolean*>(visit(node->conditional));
     if (conditional_node == nullptr){
-        throw runtime_error("Boolean expected in conditional");
+        throw std::runtime_error("Boolean expected in conditional");
     }
     bool conditional = conditional_node->value;
     if (conditional){

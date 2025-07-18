@@ -6,13 +6,11 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 int main(){
     //load text from file
-    ifstream file("text.txt");
-    string tmp;
-    string text;
+    std::ifstream file("text.txt");
+    std::string tmp;
+    std::string text;
     
     while (getline(file, tmp)){
         text += tmp;

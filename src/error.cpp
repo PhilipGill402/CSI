@@ -1,8 +1,6 @@
 #include "error.h"
 
-using namespace std;
-
-string EtoS (ErrorCode error_code) {
+std::string EtoS (ErrorCode error_code) {
     switch (error_code) {
         case ErrorCode::UNEXPECTED_TOKEN:
             return "Unexpected Token";

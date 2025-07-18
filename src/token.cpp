@@ -1,9 +1,7 @@
 #include "token.h"
 
-using namespace std;
-
 //returns the string value of the TokenType
-string TtoS(TokenType type){
+std::string TtoS(TokenType type){
     switch (type){
         case TokenType::ADD: return "+";
         case TokenType::SUB: return "-";
@@ -57,7 +55,7 @@ string TtoS(TokenType type){
     }
 }
 
-string get_TokenType(TokenType type){
+std::string get_TokenType(TokenType type){
     switch (type){
         case TokenType::ADD: return "ADD";
         case TokenType::SUB: return "SUB";
@@ -111,7 +109,7 @@ string get_TokenType(TokenType type){
     }
 }
 
-TokenType StoR(string str){
+TokenType StoR(std::string str){
     if (str == "PROGRAM"){
         return TokenType::PROGRAM;
     } else if (str == "INTEGER"){
@@ -157,14 +155,14 @@ TokenType StoR(string str){
     } else if (str == "ELSE"){
         return TokenType::ELSE;
     } else {
-        throw invalid_argument("Invalid string passed to 'StoR'");
+        throw std::invalid_argument("Invalid string passed to 'StoR'");
     }
 }
 
 Token::Token(): type(UNKNOWN), value("UNKNOWN"), lineno(0), column(0){};
-Token::Token(TokenType t, string val, int l, int c): type(t), value(val), lineno(l), column(c){};
+Token::Token(TokenType t, std::string val, int l, int c): type(t), value(val), lineno(l), column(c){};
 
-string Token::toString(){
-    string s = "<TokenType." + get_TokenType(type) + ", " + value + ", " + to_string(lineno) + ":" + to_string(column) + ">";
+std::string Token::toString(){
+    std::string s = "<TokenType." + get_TokenType(type) + ", " + value + ", " + std::to_string(lineno) + ":" + std::to_string(column) + ">";
     return s;
 }

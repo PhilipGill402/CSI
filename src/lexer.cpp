@@ -1,17 +1,15 @@
 #include "lexer.h"
 
-using namespace std;
-
-Lexer::Lexer(string txt): text(txt), pos(0), lineno(1), column(1), current_char(text.empty() ? '\0' : txt[0]){};
+Lexer::Lexer(std::string txt): text(txt), pos(0), lineno(1), column(1), current_char(text.empty() ? '\0' : txt[0]){};
 
 void Lexer::error(){
-    string msg = "Lexer error on '" + string(1, current_char) + "' line: " + to_string(lineno) + " column: " + to_string(column);
-    cerr << msg << "\n";
+    std::string msg = "Lexer error on '" + std::string(1, current_char) + "' line: " + std::to_string(lineno) + " column: " + std::to_string(column);
+    std::cerr << msg << "\n";
     abort();
 }
 
-string toUpper(string str){
-    string newStr; 
+std::string toUpper(std::string str){
+    std::string newStr; 
     for (char c : str){
         newStr += toupper(c);
     }
@@ -20,7 +18,7 @@ string toUpper(string str){
 }
 
 Token Lexer::id(){
-    string value;
+    std::string value;
     int currLineno = lineno;
     int currColumn = column;
     while (isalnum(current_char)){
@@ -28,7 +26,7 @@ Token Lexer::id(){
         advance();
     }
     
-    string keyword_value = toUpper(value);
+    std::string keyword_value = toUpper(value);
 
     if (find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), keyword_value) != RESERVED_KEYWORDS.end()){
         TokenType type = StoR(keyword_value);
@@ -87,7 +85,7 @@ Token Lexer::get_next_token(){
         if (isdigit(current_char)){
             int currLineno = lineno;
             int currColumn = column;
-            string value;
+            std::string value;
             do{
                 value += current_char;
                 advance();
@@ -108,7 +106,7 @@ Token Lexer::get_next_token(){
 
         int currLineno = lineno;
         int currColumn = column;
-        string val;
+        std::string val;
         switch (current_char){
             case '+': 
                 advance();
