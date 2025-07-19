@@ -35,5 +35,6 @@ public:
     AST* visitProcedureCall(ProcedureCall*);
     AST* visitIfStatement(IfStatement*);
     AST* visitWhileLoop(WhileLoop*);
+    AST* visitForLoop(ForLoop*);
     void interpret();
 };

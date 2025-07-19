@@ -113,6 +113,8 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         return visitIfStatement(if_statement);
     } else if (auto while_loop = dynamic_cast<WhileLoop*>(node)){
         return visitWhileLoop(while_loop);
+    } else if (auto for_loop = dynamic_cast<ForLoop*>(node)){
+        return visitForLoop(for_loop);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -311,6 +313,24 @@ Symbol* SemanticAnalyzer::visitWhileLoop(WhileLoop* node){
     }
 
     visit(node->statement);
+
+    return new EmptySymbol();
+}
+
+Symbol* SemanticAnalyzer::visitForLoop(ForLoop* node){
+    Var* counter_var = dynamic_cast<Var*>(node->assignment->left);
+    std::string counter_name = counter_var->token.value;
+    visit(node->assignment);
+    visit(node->target);
+
+    for (AST* child : node->statements){
+        if (auto assign = dynamic_cast<Assign*>(child)){
+            Var* var = dynamic_cast<Var*>(assign->left);
+            if (var && var->token.value == counter_name){
+                throw std::runtime_error("Cannot assign to loop variable '" + counter_name + "' inside a for loop");
+            }
+        }
+    }
 
     return new EmptySymbol();
 }

@@ -482,8 +482,7 @@ AST* Parser::for_loop(){
     } else {
         throw std::runtime_error("Expected token 'TO' or 'DOWNTO' but instead received " + current_token.toString());
     }
-    Integer* target = new Integer(std::stoi(current_token.value));
-    eat(ID);
+    AST* target = expr();
     eat(DO);
     AST* statements;
     if (current_token.type == TokenType::BEGIN){

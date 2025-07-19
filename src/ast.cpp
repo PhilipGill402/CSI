@@ -21,7 +21,15 @@ ProcedureDeclaration::ProcedureDeclaration(std::string n, std::vector<Param*>& p
 ProcedureCall::ProcedureCall(std::string n, std::vector<AST*>& p, Token t): name(n), given_params(p), token(t){};
 IfStatement::IfStatement(AST* c, AST* i, AST* e): conditional(c), if_statement(i), else_statement(e){};
 WhileLoop::WhileLoop(AST* c, AST* s): conditional(c), statement(s){};
-ForLoop::ForLoop(Assign* a, Integer* t, Integer* i, AST* s): assignment(a), target(t), increment(i), statement(s){};
+ForLoop::ForLoop(Assign* a, AST* t, Integer* i, AST* s): assignment(a), target(t), increment(i), body(s){
+    if (auto compound = dynamic_cast<Compound*>(body)){
+        for (AST* child : compound->children){
+            statements.push_back(child);
+        }
+    } else {
+        statements.push_back(body);
+    }
+};
 
 std::string Integer::toString() const {
     return std::to_string(static_cast<int>(value));

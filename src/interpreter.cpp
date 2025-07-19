@@ -48,6 +48,8 @@ AST* Interpreter::visit(AST* node){
         return visitIfStatement(if_statement);
     } else if (auto while_loop = dynamic_cast<WhileLoop*>(node)){
         return visitWhileLoop(while_loop);
+    } else if (auto for_loop = dynamic_cast<ForLoop*>(node)){
+        return visitForLoop(for_loop);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -357,6 +359,38 @@ AST* Interpreter::visitWhileLoop(WhileLoop* node){
     }
 
     return new NoOp(); 
+}
+
+AST* Interpreter::visitForLoop(ForLoop* node){
+    visit(node->assignment);
+    Var* var = dynamic_cast<Var*>(node->assignment->left);
+    std::string var_name = var->token.value;
+    Integer* start = dynamic_cast<Integer*>(call_stack.records.top().members[var_name]);
+    Integer* current = new Integer(start->value);
+    Integer* end = dynamic_cast<Integer*>(visit(node->target));
+    if (end == nullptr){
+        throw std::runtime_error("End value must evaluate to type 'Integer'");
+    }
+    Integer* increment = node->increment;
+
+    if (increment->value == 1){
+        for (int i = start->value; i <= end->value; i++){
+            Assign* assign = new Assign(var, Token(TokenType::ASSIGN, ":=", -1,-1), current);
+            visit(assign);
+            current->value++;
+            visit(node->body);
+        }
+    } else {
+        for (int i = start->value; i >= end->value; i--){
+            Assign* assign = new Assign(var, Token(TokenType::ASSIGN, ":=", -1,-1), current);
+            visit(assign); 
+            current->value--; 
+            visit(node->body);
+        }
+    }
+    
+
+    return new NoOp();
 }
 
 void Interpreter::interpret(){

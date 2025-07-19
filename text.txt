@@ -4,10 +4,8 @@ var a : integer;
 var b : integer;
 begin { Main }
    arr := 10;
-   a := 0;
-   while arr > 8 do
+   for a := 0 to 10 + 9 do
       begin
-         arr := arr - 1;
-         a := 1 + a;
-      end;
+         arr := arr + a;
+      end; 
 end.  { Main }

@@ -82,4 +82,5 @@ public:
     Symbol* visitString(String* node);
     Symbol* visitIfStatement(IfStatement* node);
     Symbol* visitWhileLoop(WhileLoop* node);
+    Symbol* visitForLoop(ForLoop* node);
 };

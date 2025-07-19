@@ -187,10 +187,11 @@ public:
 class ForLoop : public AST{
 public:
     Assign* assignment;
-    Integer* target;
+    AST* target;
     Integer* increment;
-    AST* statement;
+    AST* body;
+    std::vector<AST*> statements;
 
-    ForLoop(Assign*, Integer*, Integer*, AST*);
+    ForLoop(Assign*, AST*, Integer*, AST*);
 };
 class NoOp : public AST{};
