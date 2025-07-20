@@ -136,7 +136,7 @@ public:
 class Var : public AST{
 public:
     Token token;
-
+    std::string type;
     Var(Token);
 };
 

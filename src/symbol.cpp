@@ -59,6 +59,7 @@ void ScopedSymbolTable::add_builtins(){
     define(new BuiltInSymbol("CHAR"));
     define(new BuiltInSymbol("STRING"));
     define(new BuiltInSymbol("WRITELN"));
+    define(new BuiltInSymbol("WRITE"));
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
@@ -143,6 +144,7 @@ Symbol* SemanticAnalyzer::visitBlock(Block* node){
 }
 
 Symbol* SemanticAnalyzer::visitVarDecl(VarDecl* node){
+    Var* var = node->var; 
     Token var_token = node->var->token;
     std::string var_name = var_token.value;
     std::string var_type = TtoS(node->type->type);
@@ -178,6 +180,7 @@ Symbol* SemanticAnalyzer::visitVar(Var* node){
         error(ErrorCode::ID_NOT_FOUND, token);
     }
 
+    node->type = symbol->type;
     return symbol;
 }
 
@@ -258,13 +261,32 @@ Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
 
 Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     std::string procedure_name = node->name;
-
+    std::string upper_procedure_name = toUpper(procedure_name);
      //builtins
-    if (toUpper(procedure_name) == "WRITELN"){
+    if (upper_procedure_name == "WRITELN"){
         for (AST* param : node->given_params){
             visit(param);
         }
-
+        return new EmptySymbol();
+    } else if (upper_procedure_name == "WRITE"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
+        return new EmptySymbol();
+    } else if (upper_procedure_name == "READ"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
+        return new EmptySymbol();
+    } else if (upper_procedure_name == "READLN"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
+        return new EmptySymbol();
+    } else if (upper_procedure_name == "LENGTH"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
         return new EmptySymbol();
     }
     

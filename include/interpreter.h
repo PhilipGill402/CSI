@@ -45,4 +45,5 @@ public:
     void builtin_write(ProcedureCall*);
     void builtin_readln(ProcedureCall*);
     void builtin_read(ProcedureCall*);
+    int builtin_length(ProcedureCall*);
 };

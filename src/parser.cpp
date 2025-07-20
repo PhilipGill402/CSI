@@ -399,7 +399,6 @@ AST* Parser::procedure_call_statement(){
     }
 
     eat(RPAREN);
-
     ProcedureCall* procedure_call = new ProcedureCall(procedure_name, given_params, token);
 
     return procedure_call;
@@ -524,6 +523,6 @@ AST* Parser::empty(){
 
 AST* Parser::parse(){
     AST* node = program();
-
+    
     return node;
 }

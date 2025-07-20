@@ -13,7 +13,92 @@ void Interpreter::builtin_writeln(ProcedureCall* node){
 }
 
 void Interpreter::builtin_write(ProcedureCall* node){
+    for (AST* param : node->given_params){
+        Value* val = dynamic_cast<Value*>(visit(param));
+        if (val){
+            std::cout << val->toString();
+        }
+    }
+}
 
+void Interpreter::builtin_read(ProcedureCall* node){
+    for (AST* param : node->given_params){
+        Var* var = dynamic_cast<Var*>(param);
+        std::string var_name = var->token.value; 
+        if (!var){
+            throw std::runtime_error("Valid variable must be given as argument for function 'read'");
+        }
+        std::string input;
+        std::cin >> input;
+        Value* val = nullptr;
+        if (var->type == "INTEGER"){
+            val = new Integer(std::stoi(input));
+        } else if (var->type == "REAl"){
+            val = new Real(std::stod(input));
+        } else if (var->type == "CHAR"){
+            val = new Char(input[0]);
+        } else if (var->type == "STRING"){
+            val = new String(input);
+        } else{
+            throw std::runtime_error("Can't read variables of type " + var->type); 
+        }
+        
+        call_stack.records.top().members[var_name] = val;
+    }
+}
+
+void Interpreter::builtin_readln(ProcedureCall* node){
+    if (node->given_params.empty()){
+        std::string input;
+        std::cin >> input;
+        return;
+    } 
+    
+    for (AST* param : node->given_params){
+        Var* var = dynamic_cast<Var*>(param);
+        std::string var_name = var->token.value; 
+        if (!var){
+            throw std::runtime_error("Valid variable must be given as argument for function 'read'");
+        }
+        std::string input;
+
+        if (var->type == "STRING"){
+            int num_params = std::find(node->given_params.begin(), node->given_params.end(), param) - node->given_params.begin(); 
+            if (num_params == node->given_params.size() - 1){
+                std::getline(std::cin, input);
+            } else {
+                std::cin >> input;
+            }
+        } else {
+            std:: cin >> input;
+        }
+
+        Value* val = nullptr;
+        if (var->type == "INTEGER"){
+            val = new Integer(std::stoi(input));
+        } else if (var->type == "REAl"){
+            val = new Real(std::stod(input));
+        } else if (var->type == "CHAR"){
+            val = new Char(input[0]);
+        } else if (var->type == "STRING"){
+            val = new String(input);
+        } else{
+            throw std::runtime_error("Can't read variables of type " + var->type); 
+        }
+        
+        call_stack.records.top().members[var_name] = val;
+    }
+}
+
+int Interpreter::builtin_length(ProcedureCall* node){
+    if (node->given_params.size() != 1){
+        throw std::runtime_error("Incorrect number of arguments for function 'length'. Expected 1 argument Received: " + std::to_string(node->given_params.size()) + " arguments");
+    }
+    Param* val = dynamic_cast<Param*>(node->given_params[0]);
+    if (val->type->type != TokenType::STRING_LITERAL){
+        throw std::runtime_error("Parameter for function 'length' must be of type 'STRING'");
+    }
+     
 }
 
 bool isReal(Value* node){
@@ -324,12 +409,24 @@ AST* Interpreter::visitProcedureDeclaration(ProcedureDeclaration* node){
 
 AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     std::string procedure_name = node->name;
-    
+    std::string upper_procedure_name = toUpper(procedure_name); 
     //builtin functions
-    if (toUpper(procedure_name) == "WRITELN"){
+    if (upper_procedure_name == "WRITELN"){
         builtin_writeln(node);
         return new NoOp();
-    } 
+    } else if (upper_procedure_name == "WRITE"){
+        builtin_write(node);
+        return new NoOp();
+    } else if (upper_procedure_name == "READ"){
+        builtin_read(node);
+        return new NoOp();
+    } else if (upper_procedure_name == "READLN"){
+        builtin_readln(node);
+        return new NoOp();
+    } else if (upper_procedure_name == "LENGTH"){
+        int len = builtin_length(node);
+        return new Integer(len);
+    }
     
     
     int level = call_stack.records.top().level + 1;
