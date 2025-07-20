@@ -43,6 +43,7 @@ public:
     AST* if_statement_tail();
     AST* while_loop();
     AST* for_loop();
+    AST* repeat_until();
     AST* empty();
     AST* parse();
 };

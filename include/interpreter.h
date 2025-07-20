@@ -4,6 +4,7 @@
 #include "ast.h"
 #include "activation_record.h"
 #include "symbol.h"
+#include "helpers.h"
 
 class Interpreter{
 public:
@@ -36,5 +37,12 @@ public:
     AST* visitIfStatement(IfStatement*);
     AST* visitWhileLoop(WhileLoop*);
     AST* visitForLoop(ForLoop*);
+    AST* visitRepeatUntil(RepeatUntil*);
     void interpret();
+
+    //builtins
+    void builtin_writeln(ProcedureCall*);
+    void builtin_write(ProcedureCall*);
+    void builtin_readln(ProcedureCall*);
+    void builtin_read(ProcedureCall*);
 };

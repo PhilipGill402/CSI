@@ -58,6 +58,7 @@ void ScopedSymbolTable::add_builtins(){
     define(new BuiltInSymbol("BOOLEAN"));
     define(new BuiltInSymbol("CHAR"));
     define(new BuiltInSymbol("STRING"));
+    define(new BuiltInSymbol("WRITELN"));
 }
 
 void SemanticAnalyzer::error(ErrorCode error_code, Token token) {
@@ -115,6 +116,8 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         return visitWhileLoop(while_loop);
     } else if (auto for_loop = dynamic_cast<ForLoop*>(node)){
         return visitForLoop(for_loop);
+    } else if (auto repeat_until = dynamic_cast<RepeatUntil*>(node)){
+        return visitRepeatUntil(repeat_until);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -255,6 +258,17 @@ Symbol* SemanticAnalyzer::visitProcedureDeclaration(ProcedureDeclaration* node){
 
 Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     std::string procedure_name = node->name;
+
+     //builtins
+    if (toUpper(procedure_name) == "WRITELN"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
+
+        return new EmptySymbol();
+    }
+    
+
     ProcedureSymbol* procedure_symbol = dynamic_cast<ProcedureSymbol*>(current_scope->lookup(procedure_name));
     if (procedure_symbol == nullptr){
         error(ErrorCode::ID_NOT_FOUND, node->token);
@@ -331,6 +345,19 @@ Symbol* SemanticAnalyzer::visitForLoop(ForLoop* node){
             }
         }
     }
+
+    return new EmptySymbol();
+}
+
+Symbol* SemanticAnalyzer::visitRepeatUntil(RepeatUntil* node){
+    Symbol* conditional_var = visit(node->conditional);
+    if (conditional_var->type != "BOOLEAN"){
+        throw std::runtime_error("Expected a 'BOOLEAN' conditional");
+    }
+
+    for (AST* statement : node->statements){
+        visit(statement);
+    } 
 
     return new EmptySymbol();
 }

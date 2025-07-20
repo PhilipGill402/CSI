@@ -26,12 +26,4 @@ int main(){
     semantics.visit(tree);
     Interpreter interpreter = Interpreter(tree); 
     interpreter.interpret();
-    
-    /*
-    Token token = parser.current_token;
-    while (token.type != TokenType::END_OF_FILE){
-        cout << token.toString() << '\n';
-        token = parser.get_next_token();
-    }
-    */
 }

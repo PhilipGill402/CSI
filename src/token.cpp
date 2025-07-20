@@ -56,6 +56,8 @@ std::string TtoS(TokenType type){
         case TokenType::FOR: return "FOR";
         case TokenType::TO: return "TO";
         case TokenType::DOWNTO: return "DOWNTO";
+        case TokenType::REPEAT: return "REPEAT";
+        case TokenType::UNTIL: return "UNTIL";
         default: return "UNKNOWN";
     }
 }
@@ -115,6 +117,8 @@ std::string get_TokenType(TokenType type){
         case TokenType::FOR: return "FOR";
         case TokenType::TO: return "TO";
         case TokenType::DOWNTO: return "DOWNTO";
+        case TokenType::REPEAT: return "REPEAT";
+        case TokenType::UNTIL: return "UNTIL";
         default: return "UNKNOWN";
     }
 }
@@ -174,6 +178,10 @@ TokenType StoR(std::string str){
         return TokenType::TO;
     } else if (str == "DOWNTO"){
         return TokenType::DOWNTO;
+    } else if (str == "REPEAT"){
+        return TokenType::REPEAT;
+    } else if (str == "UNTIL"){
+        return TokenType::UNTIL;
     } else {
         throw std::invalid_argument("Invalid string passed to 'StoR'");
     }

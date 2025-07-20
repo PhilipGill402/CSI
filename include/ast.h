@@ -194,4 +194,13 @@ public:
 
     ForLoop(Assign*, AST*, Integer*, AST*);
 };
+
+class RepeatUntil : public AST{
+public:
+    AST* conditional;
+    std::vector<AST*> statements;
+
+    RepeatUntil(AST*, std::vector<AST*>&);
+};
+
 class NoOp : public AST{};

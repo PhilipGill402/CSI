@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 #include "ast.h"
+#include "helpers.h"
 
 class Symbol{
 public:
@@ -83,4 +84,5 @@ public:
     Symbol* visitIfStatement(IfStatement* node);
     Symbol* visitWhileLoop(WhileLoop* node);
     Symbol* visitForLoop(ForLoop* node);
+    Symbol* visitRepeatUntil(RepeatUntil* node);
 };

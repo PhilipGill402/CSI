@@ -2,6 +2,20 @@
 
 Interpreter::Interpreter(AST* t): tree(t){};
 
+void Interpreter::builtin_writeln(ProcedureCall* node){
+    for (AST* param : node->given_params){
+        Value* val = dynamic_cast<Value*>(visit(param));
+        if (val){
+            std::cout << val->toString();
+        }
+    }
+    std::cout << "\n";
+}
+
+void Interpreter::builtin_write(ProcedureCall* node){
+
+}
+
 bool isReal(Value* node){
     return dynamic_cast<Real*>(node) != nullptr;
 }
@@ -50,6 +64,8 @@ AST* Interpreter::visit(AST* node){
         return visitWhileLoop(while_loop);
     } else if (auto for_loop = dynamic_cast<ForLoop*>(node)){
         return visitForLoop(for_loop);
+    } else if (auto repeat_until = dynamic_cast<RepeatUntil*>(node)){
+        return visitRepeatUntil(repeat_until);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -308,6 +324,14 @@ AST* Interpreter::visitProcedureDeclaration(ProcedureDeclaration* node){
 
 AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     std::string procedure_name = node->name;
+    
+    //builtin functions
+    if (toUpper(procedure_name) == "WRITELN"){
+        builtin_writeln(node);
+        return new NoOp();
+    } 
+    
+    
     int level = call_stack.records.top().level + 1;
     ActivationRecord procedure_ar = ActivationRecord(procedure_name, ARType::AR_PROCEDURE, level);
     std::vector<Param*> formal_arguments = node->procedure_symbol->params;
@@ -358,7 +382,7 @@ AST* Interpreter::visitWhileLoop(WhileLoop* node){
         conditional = conditional_node->value;
     }
 
-    return new NoOp(); 
+    return new NoOp();
 }
 
 AST* Interpreter::visitForLoop(ForLoop* node){
@@ -389,6 +413,23 @@ AST* Interpreter::visitForLoop(ForLoop* node){
         }
     }
     
+
+    return new NoOp();
+}
+
+AST* Interpreter::visitRepeatUntil(RepeatUntil* node){
+    Boolean* conditional_node; 
+    bool conditional; 
+    do {
+        for (AST* statement : node->statements){
+            visit(statement);
+        }
+        conditional_node = dynamic_cast<Boolean*>(visit(node->conditional));
+        if (conditional_node == nullptr){
+            throw std::runtime_error("Boolean expected in conditional");
+        }
+        conditional = conditional_node->value;
+    } while (!conditional);
 
     return new NoOp();
 }

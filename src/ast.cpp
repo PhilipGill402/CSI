@@ -30,6 +30,7 @@ ForLoop::ForLoop(Assign* a, AST* t, Integer* i, AST* s): assignment(a), target(t
         statements.push_back(body);
     }
 };
+RepeatUntil::RepeatUntil(AST* c, std::vector<AST*>& s): conditional(c), statements(s){};
 
 std::string Integer::toString() const {
     return std::to_string(static_cast<int>(value));

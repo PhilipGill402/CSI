@@ -1,6 +1,7 @@
 #pragma once
 #include "token.h"
 #include "error.h"
+#include "helpers.h"
 #include "iostream"
 #include <string>
 #include <vector>
@@ -9,7 +10,7 @@
 
 class Lexer{
 public:
-    const std::vector<std::string> RESERVED_KEYWORDS = {"PROGRAM", "INTEGER", "REAL", "BOOLEAN", "CHAR", "STRING", "ARRAY", "OF", "TRUE", "FALSE", "AND", "OR", "NOT", "XOR", "DIV", "VAR", "PROCEDURE", "BEGIN", "END", "IF", "THEN", "ELSE", "WHILE", "DO", "FOR", "TO", "DOWNTO"};
+    const std::vector<std::string> RESERVED_KEYWORDS = {"PROGRAM", "INTEGER", "REAL", "BOOLEAN", "CHAR", "STRING", "ARRAY", "OF", "TRUE", "FALSE", "AND", "OR", "NOT", "XOR", "DIV", "VAR", "PROCEDURE", "BEGIN", "END", "IF", "THEN", "ELSE", "WHILE", "DO", "FOR", "TO", "DOWNTO", "REPEAT", "UNTIL"};
     std::string text;
     int pos;
     int lineno;

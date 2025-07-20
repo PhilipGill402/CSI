@@ -8,15 +8,6 @@ void Lexer::error(){
     abort();
 }
 
-std::string toUpper(std::string str){
-    std::string newStr; 
-    for (char c : str){
-        newStr += toupper(c);
-    }
-
-    return newStr;
-}
-
 Token Lexer::id(){
     std::string value;
     int currLineno = lineno;

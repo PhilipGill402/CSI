@@ -354,6 +354,8 @@ AST* Parser::statement(){
         node = while_loop();
     } else if (current_token.type == FOR){
         node = for_loop();
+    } else if (current_token.type == REPEAT){
+        node = repeat_until();
     } else {
         //empty
         node = empty();
@@ -492,6 +494,28 @@ AST* Parser::for_loop(){
     }
 
     return new ForLoop(assignment, target, increment, statements);
+}
+
+AST* Parser::repeat_until(){
+    eat(REPEAT);
+    std::vector<AST*> statements;
+    while (current_token.type != TokenType::UNTIL){
+        AST* line = statement();
+        statements.push_back(line);
+        eat(SEMI);
+    }
+    eat(UNTIL);
+    AST* conditional;
+    AST* expression = expr();
+    if (auto bool_conditional = dynamic_cast<Boolean*>(expression)){
+        conditional = bool_conditional;
+    } else if (auto bin_op_conditional = dynamic_cast<BinaryOp*>(expression)){
+        conditional = bin_op_conditional;
+    } else{
+        throw std::runtime_error("Expected boolean value in conditional");
+    }
+    
+    return new RepeatUntil(conditional, statements);
 }
 
 AST* Parser::empty(){
