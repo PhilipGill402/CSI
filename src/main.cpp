@@ -6,9 +6,14 @@
 #include <iostream>
 #include <fstream>
 
-int main(){
+int main(int argc, char* argv[]){
+    std::string file_path = argv[1]; 
     //load text from file
-    std::ifstream file("text.txt");
+    std::ifstream file(file_path);
+    if (!file){
+        std::cerr << "Error: could not open file " << file_path << "\n";
+        return 1;
+    } 
     std::string tmp;
     std::string text;
     

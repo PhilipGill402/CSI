@@ -133,7 +133,6 @@ Symbol* SemanticAnalyzer::visitProgram(Program* node){
     ScopedSymbolTable* global_scope = new ScopedSymbolTable("Global", 1, current_scope);
     current_scope = global_scope;
     visit(node->block);
-    std::cout << current_scope->toString() << "\n";
     current_scope = current_scope->enclosing_scope;
 
     return new EmptySymbol();

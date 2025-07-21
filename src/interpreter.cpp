@@ -370,7 +370,6 @@ AST* Interpreter::visitProgram(Program* node){
     call_stack.records.push(program_ar);
     AST* new_node = visit(node->block);
     ActivationRecord ar = call_stack.records.top();
-    std::cout << ar.toString();
     call_stack.records.pop();
     return new_node;
 }
