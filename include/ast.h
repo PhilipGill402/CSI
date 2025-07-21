@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 class ProcedureSymbol;
+class FunctionSymbol;
 class Block;
 class Compound;
 class VarDecl;
@@ -155,6 +156,26 @@ public:
     Block* block;
 
     ProcedureDeclaration(std::string, std::vector<Param*>&, Block*);
+};
+
+class FunctionDeclaration : public AST{
+public:
+    std::string name;
+    std::vector<Param*> formal_params;
+    Block* block;
+    std::string return_type;
+
+    FunctionDeclaration(std::string, std::vector<Param*>&, Block*, std::string);
+};
+
+class FunctionCall : public AST{
+public:
+    std::string name;
+    std::vector<AST*> given_params;
+    FunctionSymbol* function_symbol;
+    std::string return_type = "";
+
+    FunctionCall(std::string, std::vector<AST*>&);
 };
 
 class ProcedureCall : public AST{

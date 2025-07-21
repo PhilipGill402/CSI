@@ -8,3 +8,4 @@ std::string toUpper(std::string str){
 
     return newStr;
 }
+

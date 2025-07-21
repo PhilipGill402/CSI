@@ -59,6 +59,7 @@ enum TokenType{
     DOWNTO,
     REPEAT,
     UNTIL,
+    FUNCTION,
     UNKNOWN
 };
 

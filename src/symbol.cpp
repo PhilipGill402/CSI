@@ -5,6 +5,7 @@ Symbol::Symbol(std::string n, std::string t): name(n), type(t){};
 BuiltInSymbol::BuiltInSymbol(std::string n): Symbol(n){};
 VarSymbol::VarSymbol(std::string n, std::string t): Symbol(n, t){};
 ProcedureSymbol::ProcedureSymbol(std::string n): Symbol(n){};
+FunctionSymbol::FunctionSymbol(std::string n, std::string t): Symbol(n, t){};
 EmptySymbol::EmptySymbol():Symbol("NONE"){};
 
 std::string Symbol::toString(){
@@ -119,6 +120,10 @@ Symbol* SemanticAnalyzer::visit(AST* node){
         return visitForLoop(for_loop);
     } else if (auto repeat_until = dynamic_cast<RepeatUntil*>(node)){
         return visitRepeatUntil(repeat_until);
+    } else if (auto function_declaration = dynamic_cast<FunctionDeclaration*>(node)){
+        return visitFunctionDeclaration(function_declaration);
+    } else if (auto function_call = dynamic_cast<FunctionCall*>(node)){
+        return visitFunctionCall(function_call);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -283,11 +288,6 @@ Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
             visit(param);
         }
         return new EmptySymbol();
-    } else if (upper_procedure_name == "LENGTH"){
-        for (AST* param : node->given_params){
-            visit(param);
-        }
-        return new EmptySymbol();
     }
     
 
@@ -308,6 +308,64 @@ Symbol* SemanticAnalyzer::visitProcedureCall(ProcedureCall* node){
     }
 
     return new EmptySymbol();
+}
+
+Symbol* SemanticAnalyzer::visitFunctionDeclaration(FunctionDeclaration* node){
+    FunctionSymbol* func_symbol = new FunctionSymbol(node->name, node->return_type);
+    current_scope->define(func_symbol);
+
+    int level = current_scope->level + 1;
+    ScopedSymbolTable* func_scope = new ScopedSymbolTable(node->name, level, current_scope);
+    current_scope = func_scope; 
+
+    VarSymbol* return_val = new VarSymbol(node->name, node->return_type);
+    func_scope->define(return_val);
+
+    for (Param* param : node->formal_params){
+        Token token = param->var->token;
+        std::string param_name = token.value;
+        std::string param_type = TtoS(param->type->type);
+        Symbol* symbol = new VarSymbol(param_name, param_type);
+        current_scope->define(symbol);
+        func_symbol->params.push_back(param);
+    }
+
+    func_symbol->block = node->block;
+    visit(node->block);
+    current_scope = current_scope->enclosing_scope;
+
+    return func_symbol;
+}
+
+Symbol* SemanticAnalyzer::visitFunctionCall(FunctionCall* node){
+    std::string function_name = node->name;
+    std::string upper_function_name = toUpper(function_name);
+     //builtins
+    if (upper_function_name == "LENGTH"){
+        for (AST* param : node->given_params){
+            visit(param);
+        }
+        return new EmptySymbol();
+    }
+    
+
+    FunctionSymbol* function_symbol = dynamic_cast<FunctionSymbol*>(current_scope->lookup(function_name));
+    if (function_symbol == nullptr){
+        throw std::runtime_error("Function defintion for function '" + function_name + "' not found"); 
+    }
+    node->function_symbol = function_symbol;
+    int actual_size = function_symbol->params.size();
+    int given_size = node->given_params.size();
+
+    if (actual_size != given_size){
+        throw std::runtime_error("Incorrected number of arguments for function '" + function_name + "'. Expected " + std::to_string(actual_size) + " arguments, got " + std::to_string(given_size) + " arguments");
+    }
+
+    for (AST* param : node->given_params){
+        visit(param);
+    }
+
+    return current_scope->lookup(function_symbol->name);   
 }
 
 Symbol* SemanticAnalyzer::visitInteger(Integer* node){

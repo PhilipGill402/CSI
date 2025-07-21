@@ -7,6 +7,7 @@
 enum ARType{
     AR_PROGRAM,
     AR_PROCEDURE,
+    AR_FUNCTION,
     AR_LOOP
 };
 

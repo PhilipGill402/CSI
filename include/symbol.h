@@ -37,6 +37,15 @@ public:
     ProcedureSymbol(std::string);
 };
 
+class FunctionSymbol : public Symbol{
+public:
+    std::vector<Param*> params;
+    std::string type = "";
+    Block* block;
+
+    FunctionSymbol(std::string, std::string);
+};
+
 class EmptySymbol : public Symbol{
 public:
     EmptySymbol();
@@ -85,4 +94,6 @@ public:
     Symbol* visitWhileLoop(WhileLoop* node);
     Symbol* visitForLoop(ForLoop* node);
     Symbol* visitRepeatUntil(RepeatUntil* node);
+    Symbol* visitFunctionDeclaration(FunctionDeclaration* node);
+    Symbol* visitFunctionCall(FunctionCall* node);
 };

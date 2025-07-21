@@ -86,12 +86,17 @@ AST* Parser::factor(){
         AST* node = new UnaryOp(op, right);
         return node;
     } else if (current_token.type == TokenType::ID){
+        if (lexer.current_char == '('){
+            FunctionCall* node = function_call_statement();
+            return node;
+        } 
+        
         return variable();
     } else if (current_token.type == TokenType::STRING_LITERAL){
         String* node = new String(current_token.value);
         eat(STRING_LITERAL);
         return node; 
-    } else {
+    }  else {
         throw std::runtime_error("Unexpected token in factor(): " + current_token.value);
     }
 }
@@ -220,23 +225,56 @@ std::vector<AST*> Parser::declarations(){
             eat(SEMI);
         } while (current_token.type == TokenType::ID);
     } 
-    while (current_token.type == TokenType::PROCEDURE){
-        eat(PROCEDURE);
-        std::vector<Param*> formal_params;
-        std::string procedure_name = current_token.value;
-        eat(ID);
-        if (current_token.type == TokenType::LPAREN){
-            eat(LPAREN); 
-            formal_params = formal_parameter_list();
-            eat(RPAREN);
-        } 
-        eat(SEMI);  
-        Block* procedure_block = block();
-        eat(SEMI);
-        ProcedureDeclaration* procedure_declaration = new ProcedureDeclaration(procedure_name, formal_params, procedure_block);
-        decls.push_back(procedure_declaration);
+    while (current_token.type == TokenType::PROCEDURE || current_token.type == TokenType::FUNCTION){
+        if (current_token.type == TokenType::PROCEDURE){
+            eat(PROCEDURE);
+            std::vector<Param*> formal_params;
+            std::string procedure_name = current_token.value;
+            eat(ID);
+            if (current_token.type == TokenType::LPAREN){
+                eat(LPAREN); 
+                formal_params = formal_parameter_list();
+                eat(RPAREN);
+            } 
+            eat(SEMI);  
+            Block* procedure_block = block();
+            eat(SEMI);
+            ProcedureDeclaration* procedure_declaration = new ProcedureDeclaration(procedure_name, formal_params, procedure_block);
+            decls.push_back(procedure_declaration);
+        } else if (current_token.type == TokenType::FUNCTION){
+            eat(FUNCTION);
+            std::vector<Param*> formal_params;
+            std::string function_name = current_token.value;
+            eat(ID);
+            if (current_token.type == TokenType::LPAREN){
+                eat(LPAREN);
+                formal_params = formal_parameter_list();
+                eat(RPAREN);
+            }
+            eat(COLON);
+            std::string return_type = current_token.value;
+            if (current_token.type == TokenType::INTEGER){
+                eat(INTEGER);
+            } else if (current_token.type == TokenType::REAL){
+                eat(REAL);
+            } else if (current_token.type == TokenType::STRING){
+                eat(STRING);
+            } else if (current_token.type == TokenType::CHAR){
+                eat(CHAR);
+            } else if (current_token.type == TokenType::BOOLEAN){
+                eat(BOOLEAN);
+            } else {
+                throw std::runtime_error("Unexpected type in type declaration of function '" + function_name + "'");
+            }
+            eat(SEMI);
+            Block* function_block = block();
+            eat(SEMI);
+            FunctionDeclaration* function_declaration = new FunctionDeclaration(function_name, formal_params, function_block, return_type);
+            decls.push_back(function_declaration);
+        }
+        
     }
-    
+
     return decls;
 }
 
@@ -402,6 +440,29 @@ AST* Parser::procedure_call_statement(){
     ProcedureCall* procedure_call = new ProcedureCall(procedure_name, given_params, token);
 
     return procedure_call;
+}
+
+FunctionCall* Parser::function_call_statement(){
+    Token token = current_token;
+    std::string function_name = token.value;
+    std::vector<AST*> given_params;
+    eat(ID);
+    eat(LPAREN);
+
+    if (current_token.type != TokenType::RPAREN){
+        AST* node = expr();
+        given_params.push_back(node);
+    }
+
+    while (current_token.type == COMMA){
+        eat(COMMA);
+        AST* node = expr();
+        given_params.push_back(node);
+    }
+    eat(RPAREN);
+    FunctionCall* function_call = new FunctionCall(function_name, given_params);
+
+    return function_call;
 }
 
 AST* Parser::if_statement(){

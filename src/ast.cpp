@@ -19,6 +19,9 @@ Var::Var(Token t): token(t){};
 Param::Param(Var* v, Type* t): var(v), type(t){};
 ProcedureDeclaration::ProcedureDeclaration(std::string n, std::vector<Param*>& p, Block* b): name(n), formal_params(p), block(b){};
 ProcedureCall::ProcedureCall(std::string n, std::vector<AST*>& p, Token t): name(n), given_params(p), token(t){};
+FunctionDeclaration::FunctionDeclaration(std::string n, std::vector<Param*>& p, Block *b, std::string t): name(n), formal_params(p), block(b), return_type(t){};
+FunctionCall::FunctionCall(std::string n, std::vector<AST*>& p): name(n), given_params(p){};
+
 IfStatement::IfStatement(AST* c, AST* i, AST* e): conditional(c), if_statement(i), else_statement(e){};
 WhileLoop::WhileLoop(AST* c, AST* s): conditional(c), statement(s){};
 ForLoop::ForLoop(Assign* a, AST* t, Integer* i, AST* s): assignment(a), target(t), increment(i), body(s){

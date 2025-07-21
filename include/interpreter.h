@@ -8,7 +8,8 @@
 
 class Interpreter{
 public:
-    CallStack call_stack = CallStack(); 
+    CallStack call_stack = CallStack();
+    std::vector<FunctionDeclaration*> functions;
     AST* tree;
 
     Interpreter(AST*);
@@ -38,6 +39,8 @@ public:
     AST* visitWhileLoop(WhileLoop*);
     AST* visitForLoop(ForLoop*);
     AST* visitRepeatUntil(RepeatUntil*);
+    AST* visitFunctionDeclaratin(FunctionDeclaration*);
+    Value* visitFunctionCall(FunctionCall*);
     void interpret();
 
     //builtins

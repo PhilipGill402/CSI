@@ -1,9 +1,12 @@
 program Main;
 var arr : integer;
-var a : string;
+var a : integer;
 var b : integer;
+function Square(x: integer): integer;
+begin
+   Square := x * x;
+end;
 begin { Main }
-   a := "hello";
-   length(a);
+   a := Square(5) * 10;
    
 end.  { Main }

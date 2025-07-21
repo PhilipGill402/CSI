@@ -2,6 +2,22 @@
 
 Interpreter::Interpreter(AST* t): tree(t){};
 
+Value* defaultValue(std::string type){
+    if (type == "INTEGER"){
+        return new Integer(0);
+    } else if (type == "REAL"){
+        return new Real(0.0);
+    } else if (type == "CHAR"){
+        return new Char('\0');
+    } else if (type == "STRING"){
+        return new String("");
+    } else if (type == "BOOLEAN"){
+        return new Boolean(false);
+    } else {
+        throw std::runtime_error("Type '" + type + "' not recognized");
+    }
+}
+
 void Interpreter::builtin_writeln(ProcedureCall* node){
     for (AST* param : node->given_params){
         Value* val = dynamic_cast<Value*>(visit(param));
@@ -98,7 +114,12 @@ int Interpreter::builtin_length(ProcedureCall* node){
     if (val->type->type != TokenType::STRING_LITERAL){
         throw std::runtime_error("Parameter for function 'length' must be of type 'STRING'");
     }
-     
+    Var* var = val->var;
+    String* string = dynamic_cast<String*>(call_stack.records.top().members.at(var->token.value));
+    if (!string){
+        throw std::runtime_error("Parameter for function 'length' must be of type 'STRING'");
+    }
+    return string->value.length(); 
 }
 
 bool isReal(Value* node){
@@ -151,6 +172,10 @@ AST* Interpreter::visit(AST* node){
         return visitForLoop(for_loop);
     } else if (auto repeat_until = dynamic_cast<RepeatUntil*>(node)){
         return visitRepeatUntil(repeat_until);
+    } else if (auto function_declaration = dynamic_cast<FunctionDeclaration*>(node)){
+        return visitFunctionDeclaratin(function_declaration);
+    } else if (auto function_call = dynamic_cast<FunctionCall*>(node)){
+        return visitFunctionCall(function_call);
     } else {
         throw std::runtime_error("unsupported node type in 'visit'.");
     }
@@ -436,9 +461,9 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
 
     for (int idx = 0; idx < given_arguments.size(); idx++){
         std::string name = formal_arguments[idx]->var->token.value;
-        Num* value = dynamic_cast<Num*>(visit(given_arguments[idx]));
+        Value* value = dynamic_cast<Value*>(visit(given_arguments[idx]));
         if (value == nullptr){
-            throw std::runtime_error("Given argument couldn't be converted to type Num*");
+            throw std::runtime_error("Given argument couldn't be converted to type Value*");
         }
         procedure_ar.members[name] = value;
     }
@@ -447,6 +472,46 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     visit(node->procedure_symbol->block);
     call_stack.records.pop();
     return new NoOp();
+}
+
+AST* Interpreter::visitFunctionDeclaratin(FunctionDeclaration* node){
+    functions.push_back(node);
+    return new NoOp();
+}
+
+Value* Interpreter::visitFunctionCall(FunctionCall* node){
+    FunctionDeclaration* function_decl = nullptr; 
+    for (FunctionDeclaration* function : functions){
+        if (function->name == node->name){
+            function_decl = function;
+        }
+    }
+    if (!function_decl){
+        throw std::runtime_error("Function '" + node->name + "' not defined");
+    }
+
+    std::vector<Param*> formal_arguments = node->function_symbol->params;
+    std::vector<AST*> given_arguments = node->given_params;
+    call_stack.records.push(ActivationRecord(function_decl->name, ARType::AR_FUNCTION, call_stack.records.top().level+1));
+    ActivationRecord& ar = call_stack.records.top();    
+
+    for (int idx = 0; idx < given_arguments.size(); idx++){
+        std::string name = formal_arguments[idx]->var->token.value;
+        Value* value = dynamic_cast<Value*>(visit(given_arguments[idx]));
+        if (value == nullptr){
+            throw std::runtime_error("Given argument couldn't be converted to type Value*");
+        }
+        ar.members[name] = value;
+    }
+
+    ar.members[function_decl->name] = defaultValue(function_decl->return_type);
+
+    visit(function_decl->block);
+    Value* result = ar.members[function_decl->name];
+    
+    call_stack.records.pop();
+
+    return result;
 }
 
 AST* Interpreter::visitIfStatement(IfStatement* node){
