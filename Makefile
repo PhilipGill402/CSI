@@ -9,7 +9,7 @@ SRC = $(wildcard src/*.cpp)
 OBJ = $(patsubst src/%.cpp,src/%.o,$(SRC))
 
 # Output binary
-TARGET = app
+TARGET = psi 
 
 # Default rule
 all: $(TARGET)
