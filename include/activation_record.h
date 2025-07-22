@@ -25,5 +25,5 @@ public:
 
 class CallStack{
 public:
-    std::stack<ActivationRecord> records;
+    std::stack<ActivationRecord*> records;
 };

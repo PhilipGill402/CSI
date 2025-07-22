@@ -59,7 +59,7 @@ void Interpreter::builtin_read(ProcedureCall* node){
             throw std::runtime_error("Can't read variables of type " + var->type); 
         }
         
-        call_stack.records.top().members[var_name] = val;
+        call_stack.records.top()->members[var_name] = val;
     }
 }
 
@@ -102,7 +102,7 @@ void Interpreter::builtin_readln(ProcedureCall* node){
             throw std::runtime_error("Can't read variables of type " + var->type); 
         }
         
-        call_stack.records.top().members[var_name] = val;
+        call_stack.records.top()->members[var_name] = val;
     }
 }
 
@@ -115,7 +115,7 @@ int Interpreter::builtin_length(ProcedureCall* node){
         throw std::runtime_error("Parameter for function 'length' must be of type 'STRING'");
     }
     Var* var = val->var;
-    String* string = dynamic_cast<String*>(call_stack.records.top().members.at(var->token.value));
+    String* string = dynamic_cast<String*>(call_stack.records.top()->members.at(var->token.value));
     if (!string){
         throw std::runtime_error("Parameter for function 'length' must be of type 'STRING'");
     }
@@ -366,10 +366,10 @@ Value* Interpreter::visitUnaryOp(UnaryOp* node){
 
 AST* Interpreter::visitProgram(Program* node){
     std::string program_name = node->program_name;
-    ActivationRecord program_ar = ActivationRecord(program_name, ARType::AR_PROGRAM, 1);
+    ActivationRecord* program_ar = new ActivationRecord(program_name, ARType::AR_PROGRAM, 1);
     call_stack.records.push(program_ar);
     AST* new_node = visit(node->block);
-    ActivationRecord ar = call_stack.records.top();
+    ActivationRecord* ar = call_stack.records.top();
     call_stack.records.pop();
     return new_node;
 }
@@ -393,15 +393,14 @@ AST* Interpreter::visitAssign(Assign* node){
     if (var_value == nullptr){
         throw std::runtime_error("Invalid AST* node given to the right of the Assign node");
     }
-    call_stack.records.top().members[var_name] = var_value;
-
+    call_stack.records.top()->members[var_name] = var_value;
     return new NoOp();
 }
 
 AST* Interpreter::visitVar(Var* node){
     Token token = node->token;
     std::string var_name = token.value;
-    Value* var = call_stack.records.top().members.at(var_name);
+    Value* var = call_stack.records.top()->members.at(var_name);
     return var;
 }
 
@@ -453,10 +452,10 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
     }
     
     
-    int level = call_stack.records.top().level + 1;
-    ActivationRecord procedure_ar = ActivationRecord(procedure_name, ARType::AR_PROCEDURE, level);
+    int level = call_stack.records.top()->level + 1;
     std::vector<Param*> formal_arguments = node->procedure_symbol->params;
     std::vector<AST*> given_arguments = node->given_params;
+    ActivationRecord* procedure_ar = new ActivationRecord(procedure_name, ARType::AR_PROCEDURE, level); 
 
     for (int idx = 0; idx < given_arguments.size(); idx++){
         std::string name = formal_arguments[idx]->var->token.value;
@@ -464,7 +463,7 @@ AST* Interpreter::visitProcedureCall(ProcedureCall* node){
         if (value == nullptr){
             throw std::runtime_error("Given argument couldn't be converted to type Value*");
         }
-        procedure_ar.members[name] = value;
+        procedure_ar->members[name] = value;
     }
 
     call_stack.records.push(procedure_ar);
@@ -491,8 +490,7 @@ Value* Interpreter::visitFunctionCall(FunctionCall* node){
 
     std::vector<Param*> formal_arguments = node->function_symbol->params;
     std::vector<AST*> given_arguments = node->given_params;
-    call_stack.records.push(ActivationRecord(function_decl->name, ARType::AR_FUNCTION, call_stack.records.top().level+1));
-    ActivationRecord& ar = call_stack.records.top();    
+    ActivationRecord* function_ar = new ActivationRecord(function_decl->name, ARType::AR_FUNCTION, call_stack.records.top()->level+1);  
 
     for (int idx = 0; idx < given_arguments.size(); idx++){
         std::string name = formal_arguments[idx]->var->token.value;
@@ -500,14 +498,15 @@ Value* Interpreter::visitFunctionCall(FunctionCall* node){
         if (value == nullptr){
             throw std::runtime_error("Given argument couldn't be converted to type Value*");
         }
-        ar.members[name] = value;
+        function_ar->members[name] = value;
     }
+    
 
-    ar.members[function_decl->name] = defaultValue(function_decl->return_type);
+    call_stack.records.push(function_ar);
+    function_ar->members[function_decl->name] = defaultValue(function_decl->return_type);
 
     visit(function_decl->block);
-    Value* result = ar.members[function_decl->name];
-    
+    Value* result = function_ar->members[function_decl->name]; 
     call_stack.records.pop();
 
     return result;
@@ -550,7 +549,7 @@ AST* Interpreter::visitForLoop(ForLoop* node){
     visit(node->assignment);
     Var* var = dynamic_cast<Var*>(node->assignment->left);
     std::string var_name = var->token.value;
-    Integer* start = dynamic_cast<Integer*>(call_stack.records.top().members[var_name]);
+    Integer* start = dynamic_cast<Integer*>(call_stack.records.top()->members[var_name]);
     Integer* current = new Integer(start->value);
     Integer* end = dynamic_cast<Integer*>(visit(node->target));
     if (end == nullptr){
