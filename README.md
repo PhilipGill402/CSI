@@ -31,7 +31,7 @@ To run a Pascal program, execute:
 
 For example:
 ```bash
-./psi examples/hello_world.pas
+./psi examples/helloworld.pas
 ```
 
 ### Example Pascal File
