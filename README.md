@@ -47,7 +47,7 @@ end;
 begin
     a := 5;
     b := Square(a);
-    writeln('Square of ', a, ' is ', b);
+    writeln("Square of ", a, " is ", b);
 end.
 ```
 
